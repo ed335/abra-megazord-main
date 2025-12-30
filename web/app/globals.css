@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --verde-oliva: #6B7C59;
+}
+
+/* Reset e bases */
+* {
+  @apply border-cinza-claro;
+}
+
+body {
+  @apply bg-off-white text-cinza-escuro;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Tipografia Base */
+h1 {
+  @apply text-display font-bold text-cinza-escuro;
+}
+
+h2 {
+  @apply text-h2 font-semibold text-cinza-escuro;
+}
+
+h3 {
+  @apply text-h3 font-semibold text-cinza-escuro;
+}
+
+h4 {
+  @apply text-h4 font-semibold text-cinza-escuro;
+}
+
+p {
+  @apply text-body text-cinza-medio;
+}
+
+a {
+  @apply text-verde-oliva transition-all duration-200;
+}
+
+a:hover {
+  @apply text-verde-escuro;
+  filter: brightness(0.9);
+}
+
+/* Acessibilidade - Focus visível */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  @apply outline-none ring-2 ring-verde-oliva ring-offset-2;
+}
+
+/* Links acessíveis */
+:focus-visible {
+  outline: 2px solid var(--verde-oliva);
+  outline-offset: 2px;
+}
+
+/* Scrollbar customizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-off-white;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-cinza-claro rounded-full hover:bg-cinza-medio;
+}
+
+/* Placeholder */
+::placeholder {
+  @apply text-cinza-medio;
+}
+
+/* Seleção de texto */
+::selection {
+  @apply bg-verde-oliva text-off-white;
+}
+
+@layer base {
+  :root {
+    --background: 60 14% 97%;
+    --foreground: 0 0% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 18%;
+    --primary: 89 17% 42%;
+    --primary-foreground: 60 14% 97%;
+    --secondary: 60 7% 91%;
+    --secondary-foreground: 0 0% 18%;
+    --muted: 60 7% 96%;
+    --muted-foreground: 225 2% 45%;
+    --accent: 89 17% 92%;
+    --accent-foreground: 89 17% 29%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 60 5% 91%;
+    --input: 60 5% 91%;
+    --ring: 89 17% 42%;
+    --chart-1: 89 17% 42%;
+    --chart-2: 89 38% 65%;
+    --chart-3: 89 17% 29%;
+    --chart-4: 30 47% 64%;
+    --chart-5: 162 56% 33%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+/* Database with REST API animation */
+.database {
+  offset-anchor: 10px 0px;
+  animation: database-animation-path;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-duration: 4s;
+  animation-delay: 1s;
+}
+
+.db-light-1 {
+  offset-path: path("M 31 10 v 15 q 0 5 5 5 h 59 q 5 0 5 5 v 25");
+}
+
+.db-light-2 {
+  offset-path: path("M 77 10 v 10 q 0 5 5 5 h 13 q 5 0 5 5 v 25");
+}
+
+.db-light-3 {
+  offset-path: path("M 124 10 v 10 q 0 5 -5 5 h -14 q -5 0 -5 5 v 25");
+}
+
+.db-light-4 {
+  offset-path: path("M 170 10 v 15 q 0 5 -5 5 h -60 q -5 0 -5 5 v 25");
+}
+
+@keyframes database-animation-path {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+/* 3D Card Flip Animation */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Infinite Scroll Animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 25s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}

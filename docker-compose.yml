@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: abracann-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: abracann_user
+      POSTGRES_PASSWORD: abracann_password
+      POSTGRES_DB: abracann_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U abracann_user -d abracann_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - abracann-network
+
+  # pgAdmin (Database GUI - opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: abracann-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@abracann.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+    networks:
+      - abracann-network
+
+  # Redis (Cache - futuro)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: abracann-redis
+  #   ports:
+  #     - '6379:6379'
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - abracann-network
+
+  # MailHog (Email testing - local development)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: abracann-mailhog
+    ports:
+      - '1025:1025'  # SMTP
+      - '8025:8025'  # Web UI
+    networks:
+      - abracann-network
+
+volumes:
+  postgres_data:
+  # redis_data:
+
+networks:
+  abracann-network:
+    driver: bridge
+
+# Como usar:
+# docker-compose up
+# docker-compose down
+# docker-compose ps
+#
+# URLs:
+# - PostgreSQL: postgres://abracann_user:abracann_password@localhost:5432/abracann_dev
+# - pgAdmin: http://localhost:5050 (admin@abracann.local / admin)
+# - MailHog: http://localhost:8025

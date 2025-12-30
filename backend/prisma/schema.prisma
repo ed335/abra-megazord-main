@@ -1,0 +1,511 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============= Enums =============
+
+enum Role {
+  PACIENTE
+  PRESCRITOR
+  ADMIN
+}
+
+enum StatusPrescricao {
+  ATIVA
+  VENCIDA
+  CANCELADA
+  UTILIZADA
+}
+
+enum CategoriaArtigo {
+  EDUCACAO
+  PESQUISA
+  ORIENTACAO
+  LEGISLACAO
+}
+
+enum PerfilIntake {
+  PACIENTE_NOVO
+  EM_TRATAMENTO
+  CUIDADOR
+}
+
+// ============= Models =============
+
+model Usuario {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String    // bcrypt hash
+  role        Role      @default(PACIENTE)
+  ativo       Boolean   @default(true)
+  emailVerificado Boolean @default(false)
+  
+  criadoEm    DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+  deletadoEm  DateTime? // Para soft delete
+
+  // Relações
+  paciente    Paciente?
+  prescritor  Prescritor?
+  admin       Admin?
+  sessions    Session[]
+  logsAuditoria LogAuditoria[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  usuarioId   String
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  refreshToken String?
+  ipAddress   String?
+  userAgent   String?
+  
+  criadoEm    DateTime  @default(now())
+  expiresEm   DateTime
+  
+  @@index([usuarioId])
+  @@index([expiresEm])
+}
+
+model Paciente {
+  id              String    @id @default(cuid())
+  usuarioId       String    @unique
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  // Dados pessoais
+  cpf             String?   @unique // Criptografado (opcional, mas único se preenchido)
+  nome            String
+  email           String    @unique
+  telefone        String?   // Criptografado (opcional)
+  whatsapp        String    // WhatsApp obrigatório
+  dataNascimento  DateTime?
+  
+  // Documento de identidade (validação obrigatória na API)
+  documentoIdentidadeUrl String? // URL do documento com foto
+
+  // LGPD & Privacidade (usa consenteLGPD para termo de consentimento LGPD)
+  consenteLGPD    Boolean   @default(false)
+  consentimentoEm DateTime?
+  dataDelecaoAgendada DateTime? // Para direito ao esquecimento
+
+  // Endereço
+  rua             String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  estado          String?
+  cep             String?
+  
+  // Dados médicos (sensíveis)
+  jaUsaCannabis       Boolean   @default(false) // Já é paciente de cannabis medicinal?
+  patologiaCID        String?   // Patologia com código CID
+  condicoes           String[]  @default([])  // JSON array
+  alergias            String[]  @default([])
+  medicamentos        String[]  @default([])
+  documentosMedicosUrls String[] @default([]) // URLs dos documentos médicos (receita, laudo, anvisa)
+  
+  // Termos legais
+  termoAjuizamento    Boolean   @default(false) // Aceite do termo de ajuizamento
+  termoAjuizamentoEm  DateTime? // Data/hora do aceite
+  
+  // Relacionamentos
+  prescricoes     Prescricao[]
+  consentimentos  ConsentimentoLGPD[]
+  agendamentos    Agendamento[]
+  preAnamnese     PreAnamnese?
+  assinaturas     Assinatura[]
+  pagamentos      Pagamento[]
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([usuarioId])
+  @@index([cpf])
+  @@index([whatsapp])
+}
+
+model PreAnamnese {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String    @unique
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  perfil          PerfilIntake
+  objetivoPrincipal String
+  gravidade       Int       // 1-5
+  tratamentosPrevios String[] @default([])
+  comorbidades    String[]  @default([])
+  notas           String?
+  preferenciaAcompanhamento String
+  melhorHorario   String
+  
+  diagnostico     Json      // Objeto com titulo, resumo, nivelUrgencia, indicacoes, contraindicacoes, observacoes
+  recomendacoes   String[]  @default([])
+  proximosPasso   String?
+  scorePrioridade Int       @default(0) // 0-100
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([pacienteId])
+  @@index([scorePrioridade])
+}
+
+model Prescritor {
+  id              String    @id @default(cuid())
+  usuarioId       String    @unique
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  crm             String    @unique
+  nome            String
+  especialidade   String
+  instituicao     String?
+  email           String    @unique
+  telefone        String?
+  
+  // Validação
+  crmVerificado   Boolean   @default(false)
+  dataVerificacao DateTime?
+  
+  // Relacionamentos
+  prescricoes     Prescricao[]
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([usuarioId])
+  @@index([crm])
+}
+
+model Admin {
+  id              String    @id @default(cuid())
+  usuarioId       String    @unique
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  permissoes      String[] @default([]) // JSON array
+  notas           String?
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+}
+
+model Prescricao {
+  id              String    @id @default(cuid())
+  
+  // Relações
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  prescritorId    String
+  prescritor      Prescritor @relation(fields: [prescritorId], references: [id])
+  
+  // Dados médicos
+  descricao       String    // Indicação medicinal
+  dosagem         String    // Ex: "5-10mg"
+  frequencia      String    // Ex: "2x ao dia"
+  duracao         String    // Ex: "30 dias"
+  
+  // Certificado digital
+  certificadoUrl  String?   // URL do PDF no storage
+  qrCode          String?   // QR code data (URL/JSON)
+  
+  // Status & Validade
+  status          StatusPrescricao @default(ATIVA)
+  validadeDe      DateTime
+  validadeAte     DateTime
+  
+  // Assinatura digital (futuro)
+  assinatura      String?   // Hash da assinatura
+  
+  // Auditoria
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([pacienteId])
+  @@index([prescritorId])
+  @@index([status])
+  @@index([validadeAte])
+}
+
+model Artigo {
+  id              String    @id @default(cuid())
+  
+  titulo          String
+  slug            String    @unique
+  conteudo        String    // Markdown
+  resumo          String?   // Preview
+  autor           String
+  
+  categoria       CategoriaArtigo
+  tags            String[] @default([])
+  
+  publicado       Boolean   @default(false)
+  visualizacoes   Int       @default(0)
+  
+  imagemUrl       String?   // URL da imagem de capa
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  publicadoEm     DateTime?
+  
+  @@index([slug])
+  @@index([categoria])
+  @@index([publicado])
+}
+
+model LogAuditoria {
+  id              String    @id @default(cuid())
+  
+  usuarioId       String?
+  usuario         Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  
+  acao            String    // LOGIN, CADASTRO, PRESCRICAO_CRIADA, etc
+  recurso         String    // PACIENTE, PRESCRICAO, ARTIGO, etc
+  recursoId       String?   // ID do recurso afetado
+  
+  detalhes        Json?     // Dados contextuais (status anterior/novo)
+  ipAddress       String?
+  userAgent       String?
+  
+  criadoEm        DateTime  @default(now())
+  
+  @@index([usuarioId])
+  @@index([acao])
+  @@index([recurso])
+  @@index([criadoEm])
+}
+
+model Intake {
+  id               String       @id @default(cuid())
+  perfil           PerfilIntake
+  condicaoPrincipal String?
+  objetivoPrincipal String?
+  gravidade        Int?
+  tratamentosPrevios String[]   @default([])
+  comorbidades     String[]     @default([])
+  notas            String?
+  preferenciaAcompanhamento String?
+  melhorHorario    String?
+  contatoEmail     String
+  contatoWhatsapp  String?
+  cidade           String?
+  estado           String?
+  consentiu        Boolean      @default(false)
+  origem           String?      // ex: web-hero, cta-final
+
+  criadoEm         DateTime     @default(now())
+  atualizadoEm     DateTime     @updatedAt
+
+  @@index([perfil])
+  @@index([contatoEmail])
+  @@index([cidade, estado])
+}
+
+model ConsentimentoLGPD {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  versaoTermo     String    // Ex: "1.0"
+  hashTermo       String    // SHA-256 do termo
+  
+  aceito          Boolean   @default(false)
+  ipAddress       String?
+  userAgent       String?
+  
+  criadoEm        DateTime  @default(now())
+  
+  @@index([pacienteId])
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONFIRMADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
+  FALTOU
+}
+
+enum TipoConsulta {
+  PRIMEIRA_CONSULTA
+  RETORNO
+  ACOMPANHAMENTO
+  URGENTE
+}
+
+model Agendamento {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  dataHora        DateTime
+  duracao         Int       @default(30) // Duração em minutos
+  
+  tipo            TipoConsulta @default(PRIMEIRA_CONSULTA)
+  status          StatusAgendamento @default(AGENDADO)
+  
+  // Informações da consulta
+  motivo          String?
+  observacoes     String?
+  
+  // Confirmação
+  confirmadoEm    DateTime?
+  lembreteEnviado Boolean   @default(false)
+  lembreteEm      DateTime?
+  
+  // Para consulta por vídeo
+  linkVideo       String?
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([pacienteId])
+  @@index([dataHora])
+  @@index([status])
+}
+
+// ============= Pagamentos (Syncpay) =============
+
+enum TipoPlano {
+  MENSAL
+  TRIMESTRAL
+  ANUAL
+}
+
+enum StatusAssinatura {
+  ATIVA
+  PENDENTE
+  CANCELADA
+  EXPIRADA
+  INADIMPLENTE
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PROCESSANDO
+  PAGO
+  FALHOU
+  REEMBOLSADO
+  EXPIRADO
+}
+
+enum TipoPagamento {
+  MENSALIDADE
+  CONSULTA
+  PRIMEIRA_CONSULTA
+}
+
+model Plano {
+  id              String    @id @default(cuid())
+  
+  nome            String    // Ex: "Essencial", "Completo"
+  descricao       String?
+  tipo            TipoPlano @default(MENSAL)
+  
+  valorMensalidade Decimal  @db.Decimal(10, 2) // R$ 39,90
+  valorConsulta   Decimal   @db.Decimal(10, 2) // R$ 149,00
+  valorPrimeiraConsulta Decimal @db.Decimal(10, 2) // R$ 99,00
+  
+  beneficios      String[]  @default([])
+  ativo           Boolean   @default(true)
+  ordem           Int       @default(0) // Para ordenar na exibição
+  
+  assinaturas     Assinatura[]
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([ativo])
+  @@index([tipo])
+}
+
+model Assinatura {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  planoId         String
+  plano           Plano     @relation(fields: [planoId], references: [id])
+  
+  status          StatusAssinatura @default(PENDENTE)
+  
+  dataInicio      DateTime?
+  dataFim         DateTime?
+  proximaCobranca DateTime?
+  
+  pagamentos      Pagamento[]
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([pacienteId])
+  @@index([planoId])
+  @@index([status])
+  @@index([proximaCobranca])
+}
+
+model Pagamento {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  assinaturaId    String?
+  assinatura      Assinatura? @relation(fields: [assinaturaId], references: [id])
+  
+  tipo            TipoPagamento
+  valor           Decimal   @db.Decimal(10, 2)
+  status          StatusPagamento @default(PENDENTE)
+  
+  // Dados Syncpay
+  syncpayIdentifier String?  @unique // UUID da transação no Syncpay
+  pixCode         String?   // Código Pix copia/cola
+  pixExpiracao    DateTime? // Quando o Pix expira
+  
+  // Cliente (para Syncpay)
+  clienteNome     String?
+  clienteCpf      String?
+  clienteEmail    String?
+  clienteTelefone String?
+  
+  // Webhook data
+  webhookRecebido Boolean   @default(false)
+  webhookData     Json?
+  
+  pagoEm          DateTime?
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([pacienteId])
+  @@index([assinaturaId])
+  @@index([syncpayIdentifier])
+  @@index([status])
+  @@index([tipo])
+  @@index([criadoEm])
+}
+
+// ============= Índices & Constraints =============
+
+// Constraints de negócio via migrations:
+// - Paciente só acessa seus dados
+// - Prescritor só cria prescrição para pacientes validados
+// - Prescrição só válida com CRM ativo
+// - Dados sensíveis são criptografados no BD
