@@ -22,22 +22,25 @@ const nextConfig = {
     "0.0.0.0"
   ],
   async rewrites() {
+    // Use environment variable or default to localhost for same-server setup
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    
     return [
       {
         source: '/upload/:path*',
-        destination: 'http://localhost:3001/upload/:path*',
+        destination: `${backendUrl}/upload/:path*`,
       },
       {
         source: '/auth/:path*',
-        destination: 'http://localhost:3001/auth/:path*',
+        destination: `${backendUrl}/auth/:path*`,
       },
       {
         source: '/quiz/:path*',
-        destination: 'http://localhost:3001/quiz/:path*',
+        destination: `${backendUrl}/quiz/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: 'http://localhost:3001/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
       },
     ];
   },
