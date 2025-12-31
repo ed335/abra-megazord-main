@@ -5,13 +5,20 @@
 ### Opção 1: Usar o script automático
 
 ```bash
+# 0. Configurar variáveis de ambiente (primeira vez)
+cp .vps.env.example .vps.env
+nano .vps.env  # Edite com suas credenciais
+
 # 1. Conectar à VPS
-ssh root@31.97.93.100
+./connect-vps.sh
+# ou manualmente:
+source .vps.env
+ssh $VPS_USER@$VPS_IP
 
 # 2. Navegar até o projeto (ajuste o caminho se necessário)
 cd ~/abra-megazord
-# ou
-cd /root/abra-megazord
+# ou use o caminho definido em VPS_PROJECT_PATH
+```
 
 # 3. Copiar o script vps-fix-502.sh para a VPS ou criar manualmente
 # 4. Executar o script

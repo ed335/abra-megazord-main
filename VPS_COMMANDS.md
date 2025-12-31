@@ -2,12 +2,23 @@
 
 ## 🔌 Conectar à VPS
 
+### Primeiro: Configurar variáveis de ambiente
 ```bash
-# Opção 1: Usar o script
+# Copiar arquivo de exemplo
+cp .vps.env.example .vps.env
+
+# Editar com suas credenciais reais
+nano .vps.env
+```
+
+### Depois: Conectar
+```bash
+# Opção 1: Usar o script (recomendado)
 ./connect-vps.sh
 
-# Opção 2: Conectar diretamente
-ssh root@31.97.93.100
+# Opção 2: Conectar manualmente
+source .vps.env
+ssh $VPS_USER@$VPS_IP
 ```
 
 ## 🔍 Diagnóstico Rápido
