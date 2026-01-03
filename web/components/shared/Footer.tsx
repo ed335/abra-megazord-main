@@ -12,11 +12,11 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Image
-                src="https://abracann.org.br/_next/image?url=%2Flogo-header.png&w=256&q=75"
+                src="/logo-abracanm.svg"
                 alt="ABRACANM"
-                width={120}
-                height={32}
-                className="object-contain h-8 w-auto"
+                width={150}
+                height={36}
+                className="object-contain h-10 w-auto brightness-0 invert"
               />
             </div>
             <p className="text-off-white/80 text-sm leading-relaxed">

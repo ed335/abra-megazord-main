@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { clearToken, getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { Shield, User, Menu, X, ChevronDown, LogOut, LayoutDashboard, Settings } from 'lucide-react';
-import CannabisLeaf from '@/components/icons/CannabisLeaf';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -102,12 +102,14 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-18">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center transition-all duration-200 bg-[#3FA174] group-hover:bg-[#359966] group-hover:scale-105">
-                <CannabisLeaf className="text-white" size={20} />
-              </div>
-              <span className="text-lg lg:text-xl font-bold text-gray-900 tracking-tight">
-                ABRACANM
-              </span>
+              <Image
+                src="/logo-abracanm.svg"
+                alt="ABRACANM"
+                width={150}
+                height={36}
+                className="h-8 lg:h-9 w-auto transition-transform duration-200 group-hover:scale-105"
+                priority
+              />
             </Link>
 
             <nav className="hidden lg:flex items-center">
