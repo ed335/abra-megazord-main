@@ -16,7 +16,8 @@ import {
   ChevronLeft,
   ClipboardList,
   Video,
-  Home
+  Home,
+  Kanban
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -28,6 +29,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/crm', label: 'CRM Funil', icon: Kanban },
   { href: '/admin/associados', label: 'Associados', icon: Users },
   { href: '/admin/agendamentos', label: 'Agendamentos', icon: Calendar },
   { href: '/admin/assinaturas', label: 'Assinaturas', icon: FileText },
