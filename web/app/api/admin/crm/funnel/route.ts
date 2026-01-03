@@ -134,6 +134,16 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { dataHora: 'asc' },
         },
+        assinaturas: {
+          select: {
+            id: true,
+            status: true,
+            criadoEm: true,
+          },
+          where: {
+            status: 'ATIVA',
+          },
+        },
       },
     });
 
@@ -155,6 +165,7 @@ export async function GET(request: NextRequest) {
     for (const paciente of pacientes) {
       const onboardingCompleto = isOnboardingComplete(paciente);
       const temPreAnamnese = !!paciente.preAnamnese;
+      const temAssinaturaAtiva = (paciente as any).assinaturas?.length > 0;
       const agendamentos = paciente.agendamentos || [];
       
       const consultasConcluidas = agendamentos.filter(
@@ -180,7 +191,7 @@ export async function GET(request: NextRequest) {
       } else if (temPreAnamnese) {
         stage = 'pre_anamnese';
         dataReferencia = new Date(paciente.preAnamnese!.criadoEm);
-      } else if (onboardingCompleto) {
+      } else if (onboardingCompleto || temAssinaturaAtiva) {
         stage = 'associados';
         dataReferencia = new Date(paciente.criadoEm);
       } else {

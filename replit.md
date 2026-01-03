@@ -1,6 +1,13 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
 ## Recent Changes (2026-01-03)
+- **CRM Kanban Funnel:** Added visual Kanban board for tracking leads through the sales funnel
+  - `/admin/crm` - Kanban-style CRM with 5 columns: Leads, Associados, Pré-anamnese, Consulta Agendada, Consulta Realizada
+  - Stage calculation based on: onboarding completion, active subscriptions, pre-anamnese status, and consultation status
+  - Cards show name, WhatsApp, location, registration date, and days in current stage
+  - Filters for search and date range
+  - Click-to-view modal with contact options and profile link
+  - Collapsible columns for better visibility
 - **Password Reset Feature:** Added forgot/reset password flow with SMTP email support
   - `/esqueci-senha` - Page to request password reset email
   - `/redefinir-senha` - Page to set new password with token validation
