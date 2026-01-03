@@ -48,6 +48,10 @@ model Usuario {
   ativo       Boolean   @default(true)
   emailVerificado Boolean @default(false)
   
+  // Reset de senha
+  resetToken  String?   @unique
+  resetTokenExpiry DateTime?
+  
   criadoEm    DateTime  @default(now())
   atualizadoEm DateTime @updatedAt
   deletadoEm  DateTime? // Para soft delete
