@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --verde-oliva: #6B7C59;
+  --verde-oliva: #38840e;
+  --verde-primario: #38840e;
+  --verde-claro: #5ca917;
+  --verde-escuro: #2d6a0a;
+  --amarelo-logo: #efda1d;
 }
 
 /* Reset e bases */
@@ -91,24 +95,24 @@ input:focus-visible {
     --card-foreground: 0 0% 18%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 18%;
-    --primary: 89 17% 42%;
-    --primary-foreground: 60 14% 97%;
-    --secondary: 60 7% 91%;
-    --secondary-foreground: 0 0% 18%;
+    --primary: 98 82% 29%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 93 79% 37%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 60 7% 96%;
     --muted-foreground: 225 2% 45%;
-    --accent: 89 17% 92%;
-    --accent-foreground: 89 17% 29%;
+    --accent: 51 88% 53%;
+    --accent-foreground: 0 0% 18%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 60 5% 91%;
     --input: 60 5% 91%;
-    --ring: 89 17% 42%;
-    --chart-1: 89 17% 42%;
-    --chart-2: 89 38% 65%;
-    --chart-3: 89 17% 29%;
-    --chart-4: 30 47% 64%;
-    --chart-5: 162 56% 33%;
+    --ring: 98 82% 29%;
+    --chart-1: 98 82% 29%;
+    --chart-2: 93 79% 37%;
+    --chart-3: 51 88% 53%;
+    --chart-4: 98 60% 40%;
+    --chart-5: 93 60% 50%;
     --radius: 0.5rem;
   }
   .dark {
