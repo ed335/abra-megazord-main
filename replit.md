@@ -8,6 +8,11 @@
   - `/api/auth/reset-password` - Validates token and updates password
   - Added "Esqueci minha senha" link to login page
   - Tokens expire in 1 hour for security
+- **Admin Password Reset:** Admin can reset user passwords from the CRM
+  - New button "Senha" in associate profile modal
+  - Confirmation modal with warning and password fields
+  - API endpoint `/api/admin/associados/[id]/reset-password`
+  - All actions logged in audit trail
 - Implemented simplified quick registration flow at `/cadastro-rapido` (4 fields only)
 - Created 3-step onboarding process at `/onboarding` for profile completion
 - Updated `/api/perfil` GET to return onboarding fields (jaUsaCannabis, documentoIdentidadeUrl, onboardingCompleto)

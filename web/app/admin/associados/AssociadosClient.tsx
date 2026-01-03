@@ -8,7 +8,7 @@ import { getToken } from '@/lib/auth';
 import { 
   FileText, AlertCircle, Clock, Activity, Download, Upload, 
   MessageCircle, Search, X, Edit2, Power, Eye, Image, LogIn, 
-  CreditCard, User, Phone, MapPin, Calendar, Heart, ClipboardList
+  CreditCard, User, Phone, MapPin, Calendar, Heart, ClipboardList, Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -159,6 +159,11 @@ export default function AssociadosClient() {
   const [selectedPlanoId, setSelectedPlanoId] = useState('');
   const [mesesPlano, setMesesPlano] = useState(1);
   const [atribuindoPlano, setAtribuindoPlano] = useState(false);
+
+  const [showResetSenhaModal, setShowResetSenhaModal] = useState(false);
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmaSenha, setConfirmaSenha] = useState('');
+  const [resetandoSenha, setResetandoSenha] = useState(false);
 
   const buildQueryString = useCallback((page: number, currentFilters: Filters) => {
     const params = new URLSearchParams();
@@ -314,6 +319,55 @@ export default function AssociadosClient() {
       setError(err instanceof Error ? err.message : 'Erro ao atribuir plano');
     } finally {
       setAtribuindoPlano(false);
+    }
+  };
+
+  const handleOpenResetSenhaModal = (associado: Associado) => {
+    setSelectedAssociado(associado);
+    setNovaSenha('');
+    setConfirmaSenha('');
+    setShowResetSenhaModal(true);
+  };
+
+  const handleResetSenha = async () => {
+    if (!selectedAssociado) return;
+    
+    if (novaSenha.length < 8) {
+      alert('A senha deve ter pelo menos 8 caracteres');
+      return;
+    }
+    
+    if (novaSenha !== confirmaSenha) {
+      alert('As senhas não coincidem');
+      return;
+    }
+
+    setResetandoSenha(true);
+    const token = getToken();
+
+    try {
+      const response = await fetch(`/api/admin/associados/${selectedAssociado.id}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ novaSenha }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Erro ao redefinir senha');
+      }
+
+      const data = await response.json();
+      alert(data.message);
+      setShowResetSenhaModal(false);
+      setSelectedAssociado(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao redefinir senha');
+    } finally {
+      setResetandoSenha(false);
     }
   };
 
@@ -978,7 +1032,7 @@ export default function AssociadosClient() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-4 border-t border-gray-100">
                   <button
                     onClick={() => { setShowProfileModal(false); handleEdit(selectedAssociado); }}
                     className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium"
@@ -999,6 +1053,13 @@ export default function AssociadosClient() {
                   >
                     <CreditCard size={16} />
                     Plano
+                  </button>
+                  <button
+                    onClick={() => { setShowProfileModal(false); handleOpenResetSenhaModal(selectedAssociado); }}
+                    className="flex items-center justify-center gap-2 py-3 px-4 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors text-sm font-medium"
+                  >
+                    <Key size={16} />
+                    Senha
                   </button>
                   <button
                     onClick={() => handleToggleStatus(selectedAssociado)}
@@ -1188,6 +1249,73 @@ export default function AssociadosClient() {
                   <p className="text-gray-500">Nenhum documento enviado</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResetSenhaModal && selectedAssociado && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Redefinir Senha</h2>
+              <button onClick={() => { setShowResetSenhaModal(false); setSelectedAssociado(null); }} className="p-2 text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <p className="text-sm text-amber-800">
+                  <strong>Atenção:</strong> Você está prestes a redefinir a senha do associado <strong>{selectedAssociado.nome}</strong>. Esta ação será registrada no log de auditoria.
+                </p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Associado</p>
+                <p className="font-medium text-gray-900">{selectedAssociado.nome}</p>
+                <p className="text-sm text-gray-500">{selectedAssociado.email}</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nova Senha</label>
+                <input
+                  type="password"
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  placeholder="Mínimo 8 caracteres"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3FA174]/30 focus:border-[#3FA174]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar Senha</label>
+                <input
+                  type="password"
+                  value={confirmaSenha}
+                  onChange={(e) => setConfirmaSenha(e.target.value)}
+                  placeholder="Repita a senha"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3FA174]/30 focus:border-[#3FA174]"
+                />
+              </div>
+
+              {novaSenha && confirmaSenha && novaSenha !== confirmaSenha && (
+                <p className="text-sm text-red-500">As senhas não coincidem</p>
+              )}
+            </div>
+            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => { setShowResetSenhaModal(false); setSelectedAssociado(null); }}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleResetSenha}
+                disabled={!novaSenha || novaSenha.length < 8 || novaSenha !== confirmaSenha || resetandoSenha}
+                className="px-6 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-sm font-medium disabled:opacity-50"
+              >
+                {resetandoSenha ? 'Salvando...' : 'Redefinir Senha'}
+              </button>
             </div>
           </div>
         </div>
