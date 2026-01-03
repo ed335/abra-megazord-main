@@ -8,6 +8,7 @@ import { getToken, clearToken, fetchWithAuth } from '@/lib/auth';
 import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { OnboardingBanner } from '@/components/ui/onboarding-banner';
 import { 
   ClipboardList, 
   Calendar,
@@ -50,11 +51,23 @@ type AssinaturaAtiva = {
   proximaCobranca: string | null;
 };
 
+type PacienteInfo = {
+  id: string;
+  cpf: string | null;
+  whatsapp: string;
+  cidade: string | null;
+  estado: string | null;
+  documentoIdentidadeUrl: string | null;
+};
+
 type UserData = {
   id: string;
   email: string;
   role: string;
   nome: string;
+  onboardingCompleto: boolean;
+  hasPreAnamnese: boolean;
+  paciente: PacienteInfo | null;
   planoAtivo: PlanoAtivo | null;
   assinaturaAtiva: AssinaturaAtiva | null;
   isPrescritor: boolean;
@@ -709,6 +722,14 @@ export default function DashboardPage() {
   return (
     <AppLayout title="Início">
       <div className="space-y-6">
+        {!user.onboardingCompleto && (
+          <OnboardingBanner
+            userName={user.nome}
+            hasCpf={!!user.paciente?.cpf}
+            hasDocumento={!!user.paciente?.documentoIdentidadeUrl}
+            hasEndereco={!!(user.paciente?.cidade && user.paciente?.estado)}
+          />
+        )}
         <div>
           <h1 className="text-xl font-semibold text-foreground">
             Olá, {firstName}

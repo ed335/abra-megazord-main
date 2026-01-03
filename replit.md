@@ -1,5 +1,13 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
+## Recent Changes (2026-01-03)
+- Implemented simplified quick registration flow at `/cadastro-rapido` (4 fields only)
+- Created 3-step onboarding process at `/onboarding` for profile completion
+- Updated `/api/perfil` GET to return onboarding fields (jaUsaCannabis, documentoIdentidadeUrl, onboardingCompleto)
+- Updated `/api/perfil` PUT to persist all onboarding fields and return completion status
+- Added onboarding banner to dashboard for users with incomplete profiles
+- Onboarding page now pre-fills existing data from profile API
+
 ## Overview
 ABRACANM is a comprehensive platform for managing medical cannabis patients in Brazil. The system facilitates patient registration with medical documentation, appointment scheduling, payment integration via Stripe/Syncpay, video consultations, and digital prescription generation. The mission is to welcome patients seeking quality of life through cannabis medicine, breaking down barriers and taboos with science, safety, and humanity. The platform aims to be accessible to all audiences, focusing on health, quality of life, and longevity.
 
@@ -37,7 +45,9 @@ The project follows a modular architecture with a clear separation between front
 - **LGPD Compliance:** Includes dedicated pages for Privacy Policy, Terms of Use, and Cookie Policy.
 
 **Feature Specifications:**
-- **Member Registration:** A streamlined 4-step process including personal data, address (with ViaCEP auto-fill), identity document upload, and medical information.
+- **Quick Registration:** Simplified signup with only 4 fields (name, email, WhatsApp, password) to reduce friction and increase conversions. Located at `/cadastro-rapido`.
+- **Onboarding Flow:** 3-step progressive profile completion (CPF, address, document upload) after initial registration. Located at `/onboarding`.
+- **Member Registration:** Traditional full registration flow as fallback at `/cadastro/associado`.
 - **Admin Panel:** Comprehensive tools for managing associates, administrators, plans, subscriptions, and payments. Includes audit logs for administrator actions and a mass WhatsApp messaging feature with dynamic templates.
 - **Pre-Anamnesis:** Optimized multi-step questionnaire leading to a personalized ABRACANM Diagnosis.
 - **Appointment Scheduling:** System for managing consultations with various types, statuses, and integration with video calls.

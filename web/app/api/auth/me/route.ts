@@ -4,6 +4,33 @@ import jwt from 'jsonwebtoken';
 import { getJWTSecret } from '@/lib/jwt';
 export const dynamic = 'force-dynamic';
 
+interface TokenPayload {
+  sub: string;
+  email: string;
+  role: string;
+}
+
+function isOnboardingComplete(paciente: {
+  cpf: string | null;
+  documentoIdentidadeUrl: string | null;
+  cep: string | null;
+  rua: string | null;
+  numero: string | null;
+  cidade: string | null;
+  estado: string | null;
+} | null): boolean {
+  if (!paciente) return false;
+  return !!(
+    paciente.cpf &&
+    paciente.documentoIdentidadeUrl &&
+    paciente.cep &&
+    paciente.rua &&
+    paciente.numero &&
+    paciente.cidade &&
+    paciente.estado
+  );
+}
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization');
@@ -16,10 +43,10 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.split(' ')[1];
     
-    let decoded: any;
+    let decoded: TokenPayload;
     try {
       const jwtSecret = getJWTSecret();
-      decoded = jwt.verify(token, jwtSecret);
+      decoded = jwt.verify(token, jwtSecret) as TokenPayload;
     } catch {
       return NextResponse.json(
         { message: 'Token inválido' },
@@ -38,6 +65,7 @@ export async function GET(request: NextRequest) {
               orderBy: { criadoEm: 'desc' },
               take: 1,
             },
+            preAnamnese: true,
           },
         }, 
         prescritor: true, 
@@ -45,7 +73,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!usuario) {
+    if (!usuario || !usuario.ativo) {
       return NextResponse.json(
         { message: 'Usuário não encontrado' },
         { status: 404 }
@@ -56,6 +84,8 @@ export async function GET(request: NextRequest) {
     let cpf = '';
     let planoAtivo = null;
     let assinaturaAtiva = null;
+    const hasPreAnamnese = !!usuario.paciente?.preAnamnese;
+    const onboardingCompleto = isOnboardingComplete(usuario.paciente);
     
     if (usuario.paciente) {
       nome = usuario.paciente.nome;
@@ -87,6 +117,16 @@ export async function GET(request: NextRequest) {
       role: usuario.role,
       nome,
       cpf,
+      onboardingCompleto,
+      hasPreAnamnese,
+      paciente: usuario.paciente ? {
+        id: usuario.paciente.id,
+        cpf: usuario.paciente.cpf,
+        whatsapp: usuario.paciente.whatsapp,
+        cidade: usuario.paciente.cidade,
+        estado: usuario.paciente.estado,
+        documentoIdentidadeUrl: usuario.paciente.documentoIdentidadeUrl,
+      } : null,
       planoAtivo,
       assinaturaAtiva,
       isPrescritor: !!usuario.prescritor,

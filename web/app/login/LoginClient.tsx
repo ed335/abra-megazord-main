@@ -117,7 +117,7 @@ export default function LoginClient() {
 
             <p className="text-sm text-center text-muted-foreground">
               Ainda não tem conta?{' '}
-              <Link href="/cadastro/associado" className="text-primary hover:underline font-medium">
+              <Link href="/cadastro-rapido" className="text-primary hover:underline font-medium">
                 Cadastre-se
               </Link>
             </p>

@@ -38,6 +38,8 @@ export async function GET(request: NextRequest) {
 
     const p = usuario.paciente;
 
+    const onboardingCompleto = !!(p.cpf && p.documentoIdentidadeUrl && p.cep && p.rua && p.numero && p.cidade && p.estado);
+
     return NextResponse.json({
       id: p.id,
       nome: p.nome,
@@ -54,6 +56,9 @@ export async function GET(request: NextRequest) {
       estado: p.estado || '',
       cep: p.cep || '',
       patologiaCID: p.patologiaCID || '',
+      documentoIdentidadeUrl: p.documentoIdentidadeUrl || '',
+      jaUsaCannabis: p.jaUsaCannabis || false,
+      onboardingCompleto,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);
@@ -78,7 +83,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { nome, cpf, whatsapp, telefone, dataNascimento, rua, numero, complemento, bairro, cidade, estado, cep } = body;
+    const { nome, cpf, whatsapp, telefone, dataNascimento, rua, numero, complemento, bairro, cidade, estado, cep, documentoIdentidadeUrl, jaUsaCannabis, patologiaCID } = body;
 
     if (cpf) {
       const cpfLimpo = cpf.replace(/\D/g, '');
@@ -113,16 +118,33 @@ export async function PUT(request: NextRequest) {
         ...(cidade !== undefined && { cidade }),
         ...(estado !== undefined && { estado }),
         ...(cep !== undefined && { cep: cep?.replace(/\D/g, '') }),
+        ...(documentoIdentidadeUrl !== undefined && { documentoIdentidadeUrl }),
+        ...(jaUsaCannabis !== undefined && { jaUsaCannabis }),
+        ...(patologiaCID !== undefined && { patologiaCID }),
       },
     });
+
+    const onboardingCompleto = !!(
+      updatedPaciente.cpf && 
+      updatedPaciente.documentoIdentidadeUrl && 
+      updatedPaciente.cep && 
+      updatedPaciente.rua && 
+      updatedPaciente.numero && 
+      updatedPaciente.cidade && 
+      updatedPaciente.estado
+    );
 
     return NextResponse.json({ 
       success: true, 
       message: 'Perfil atualizado com sucesso',
+      onboardingCompleto,
       paciente: {
         id: updatedPaciente.id,
         nome: updatedPaciente.nome,
         cpf: updatedPaciente.cpf,
+        documentoIdentidadeUrl: updatedPaciente.documentoIdentidadeUrl,
+        cidade: updatedPaciente.cidade,
+        estado: updatedPaciente.estado,
       }
     });
   } catch (error) {
