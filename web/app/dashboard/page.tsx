@@ -181,11 +181,6 @@ export default function DashboardPage() {
         return res.json();
       })
       .then((userData) => {
-        if (!userData.onboardingCompleto && userData.role !== 'ADMIN' && userData.role !== 'MEDICO' && !userData.isPrescritor) {
-          router.replace('/onboarding');
-          return;
-        }
-        
         setUser(userData);
         
         if (userData.isPrescritor) {
@@ -253,6 +248,17 @@ export default function DashboardPage() {
   const planoNome = user.planoAtivo?.nome || 'Essencial';
   const planoConfig = planoBadgeConfig[planoNome] || planoBadgeConfig['Essencial'];
   const PlanoIcon = planoConfig.icon;
+  
+  const isProfileIncomplete = !user.onboardingCompleto && user.role !== 'ADMIN' && user.role !== 'MEDICO' && !user.isPrescritor;
+  
+  const handleProtectedClick = (e: React.MouseEvent, href: string) => {
+    if (isProfileIncomplete) {
+      e.preventDefault();
+      router.push('/onboarding');
+    } else {
+      router.push(href);
+    }
+  };
 
   const getAvatarColor = (nome: string): string => {
     const colors = [
@@ -538,11 +544,12 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </div>
-                <Link href="/carteirinha">
-                  <span className="text-sm text-[#3FA174] font-medium hover:underline cursor-pointer">
-                    Ver carteirinha
-                  </span>
-                </Link>
+                <span 
+                  onClick={(e) => handleProtectedClick(e, '/carteirinha')}
+                  className="text-sm text-[#3FA174] font-medium hover:underline cursor-pointer"
+                >
+                  Ver carteirinha
+                </span>
               </div>
             </div>
           </motion.div>
@@ -554,27 +561,27 @@ export default function DashboardPage() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-4"
           >
-            <Link href="/agendar-consulta" className="group">
+            <div onClick={(e) => handleProtectedClick(e, '/agendar-consulta')} className="group cursor-pointer">
               <div className="bg-[#3FA174] rounded-2xl p-5 text-white transition-all hover:shadow-lg hover:scale-[1.02]">
                 <Calendar className="w-6 h-6 mb-3" />
                 <p className="font-medium">Agendar</p>
                 <p className="text-sm text-white/70">Consulta</p>
               </div>
-            </Link>
-            <Link href="/pre-anamnese" className="group">
+            </div>
+            <div onClick={(e) => handleProtectedClick(e, '/pre-anamnese')} className="group cursor-pointer">
               <div className={`bg-white rounded-2xl p-5 border transition-all hover:shadow-lg hover:scale-[1.02] ${hasPreAnamnese ? 'border-[#3FA174]' : 'border-gray-200'}`}>
                 <ClipboardList className={`w-6 h-6 mb-3 ${hasPreAnamnese ? 'text-[#3FA174]' : 'text-gray-400'}`} />
                 <p className="font-medium text-gray-900">Anamnese</p>
                 <p className="text-sm text-gray-500">{hasPreAnamnese ? 'Concluída' : 'Pendente'}</p>
               </div>
-            </Link>
-            <Link href="/carteirinha" className="group">
+            </div>
+            <div onClick={(e) => handleProtectedClick(e, '/carteirinha')} className="group cursor-pointer">
               <div className="bg-white rounded-2xl p-5 border border-gray-200 transition-all hover:shadow-lg hover:scale-[1.02]">
                 <Wallet className="w-6 h-6 mb-3 text-gray-400" />
                 <p className="font-medium text-gray-900">Carteirinha</p>
                 <p className="text-sm text-gray-500">Digital</p>
               </div>
-            </Link>
+            </div>
             <Link href="/perfil" className="group">
               <div className="bg-white rounded-2xl p-5 border border-gray-200 transition-all hover:shadow-lg hover:scale-[1.02]">
                 <User className="w-6 h-6 mb-3 text-gray-400" />
@@ -602,12 +609,13 @@ export default function DashboardPage() {
                     Necessário para agendar sua consulta
                   </p>
                 </div>
-                <Link href="/pre-anamnese">
-                  <Button className="bg-gray-900 hover:bg-gray-800 text-white">
-                    Iniciar
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
+                <Button 
+                  className="bg-gray-900 hover:bg-gray-800 text-white"
+                  onClick={(e) => handleProtectedClick(e, '/pre-anamnese')}
+                >
+                  Iniciar
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
             </motion.div>
           )}
@@ -655,11 +663,13 @@ export default function DashboardPage() {
               <div className="border-t border-gray-100 px-5 py-4 bg-gray-50/50">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Próximo passo: agendar consulta</span>
-                  <Link href="/agendar-consulta">
-                    <Button size="sm" className="bg-gray-900 hover:bg-gray-800">
-                      Agendar agora
-                    </Button>
-                  </Link>
+                  <Button 
+                    size="sm" 
+                    className="bg-gray-900 hover:bg-gray-800"
+                    onClick={(e) => handleProtectedClick(e, '/agendar-consulta')}
+                  >
+                    Agendar agora
+                  </Button>
                 </div>
               </div>
             </motion.div>
@@ -704,20 +714,20 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-500 mt-1">Grupo WhatsApp</p>
               </div>
             </a>
-            <Link href="/educacao" className="group">
+            <div onClick={(e) => handleProtectedClick(e, '/educacao')} className="group cursor-pointer">
               <div className="bg-white border border-gray-200 rounded-2xl p-5 transition-all hover:shadow-md hover:border-[#3FA174]">
                 <FileText className="w-6 h-6 text-gray-400 mb-3 group-hover:text-[#3FA174] transition-colors" />
                 <p className="font-medium text-gray-900">Educação</p>
                 <p className="text-sm text-gray-500 mt-1">Artigos e vídeos</p>
               </div>
-            </Link>
-            <Link href="/contato" className="group">
+            </div>
+            <div onClick={(e) => handleProtectedClick(e, '/contato')} className="group cursor-pointer">
               <div className="bg-white border border-gray-200 rounded-2xl p-5 transition-all hover:shadow-md hover:border-[#3FA174]">
                 <HeartPulse className="w-6 h-6 text-gray-400 mb-3 group-hover:text-[#3FA174] transition-colors" />
                 <p className="font-medium text-gray-900">Suporte</p>
                 <p className="text-sm text-gray-500 mt-1">Atendimento prioritário</p>
               </div>
-            </Link>
+            </div>
           </motion.div>
         </div>
       </AppLayout>
@@ -748,16 +758,19 @@ export default function DashboardPage() {
             icon={ClipboardList} 
             label="Pré-Anamnese"
             done={hasPreAnamnese}
+            onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
           <QuickAction 
             href="/agendar" 
             icon={Calendar} 
             label="Agendar"
+            onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
           <QuickAction 
             href="/planos" 
             icon={CreditCard} 
             label="Planos"
+            onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
           <QuickAction 
             href="/perfil" 
@@ -768,6 +781,7 @@ export default function DashboardPage() {
             href="/carteirinha" 
             icon={Wallet} 
             label="Carteirinha"
+            onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
         </div>
 
@@ -781,12 +795,14 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600 mt-0.5">
                 Acesso a consultas com desconto, suporte prioritário e muito mais
               </p>
-              <Link href="/planos">
-                <Button size="sm" className="mt-3 bg-[#3FA174] hover:bg-[#359966]">
-                  Ver planos
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                className="mt-3 bg-[#3FA174] hover:bg-[#359966]"
+                onClick={(e) => handleProtectedClick(e, '/planos')}
+              >
+                Ver planos
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
             </div>
           </div>
         </div>
@@ -802,12 +818,14 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Precisamos de algumas informações para preparar sua consulta
                 </p>
-                <Link href="/pre-anamnese">
-                  <Button size="sm" className="mt-3">
-                    Começar
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
+                <Button 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={(e) => handleProtectedClick(e, '/pre-anamnese')}
+                >
+                  Começar
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
             </div>
           </div>
@@ -853,12 +871,10 @@ export default function DashboardPage() {
                   <Clock className="w-3.5 h-3.5" />
                   Próximo: agendar consulta
                 </div>
-                <Link href="/agendar">
-                  <Button size="sm">
-                    <Calendar className="w-4 h-4 mr-1.5" />
-                    Agendar
-                  </Button>
-                </Link>
+                <Button size="sm" onClick={(e) => handleProtectedClick(e, '/agendar')}>
+                  <Calendar className="w-4 h-4 mr-1.5" />
+                  Agendar
+                </Button>
               </div>
             </div>
           </div>
@@ -867,32 +883,34 @@ export default function DashboardPage() {
         <Separator />
 
         <div className="grid sm:grid-cols-2 gap-3">
-          <Link href="/educacao">
-            <div className="group border border-border rounded-lg p-4 hover:border-primary/30 hover:bg-accent/30 transition-all">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Educação
-                  </p>
-                  <p className="text-xs text-muted-foreground">Artigos sobre cannabis medicinal</p>
-                </div>
+          <div 
+            onClick={(e) => handleProtectedClick(e, '/educacao')}
+            className="group border border-border rounded-lg p-4 hover:border-primary/30 hover:bg-accent/30 transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  Educação
+                </p>
+                <p className="text-xs text-muted-foreground">Artigos sobre cannabis medicinal</p>
               </div>
             </div>
-          </Link>
-          <Link href="/contato">
-            <div className="group border border-border rounded-lg p-4 hover:border-primary/30 hover:bg-accent/30 transition-all">
-              <div className="flex items-center gap-3">
-                <MessageCircle className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Suporte
-                  </p>
-                  <p className="text-xs text-muted-foreground">Fale com nossa equipe</p>
-                </div>
+          </div>
+          <div 
+            onClick={(e) => handleProtectedClick(e, '/contato')}
+            className="group border border-border rounded-lg p-4 hover:border-primary/30 hover:bg-accent/30 transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <MessageCircle className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  Suporte
+                </p>
+                <p className="text-xs text-muted-foreground">Fale com nossa equipe</p>
               </div>
             </div>
-          </Link>
+          </div>
         </div>
       </div>
     </AppLayout>
@@ -903,13 +921,38 @@ function QuickAction({
   href, 
   icon: Icon, 
   label, 
-  done = false 
+  done = false,
+  onProtectedClick
 }: { 
   href: string; 
   icon: React.ElementType; 
   label: string; 
   done?: boolean;
+  onProtectedClick?: (e: React.MouseEvent, href: string) => void;
 }) {
+  const handleClick = (e: React.MouseEvent) => {
+    if (onProtectedClick) {
+      onProtectedClick(e, href);
+    }
+  };
+
+  if (onProtectedClick) {
+    return (
+      <div 
+        onClick={handleClick}
+        className="group bg-card border border-border rounded-lg p-4 hover:border-primary/40 hover:shadow-sm transition-all h-full cursor-pointer"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <Icon className="w-5 h-5 text-primary" />
+          {done && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+        </div>
+        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+          {label}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Link href={href}>
       <div className="group bg-card border border-border rounded-lg p-4 hover:border-primary/40 hover:shadow-sm transition-all h-full">
