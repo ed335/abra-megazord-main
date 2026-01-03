@@ -1,6 +1,13 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
 ## Recent Changes (2026-01-03)
+- **Password Reset Feature:** Added forgot/reset password flow with SMTP email support
+  - `/esqueci-senha` - Page to request password reset email
+  - `/redefinir-senha` - Page to set new password with token validation
+  - `/api/auth/forgot-password` - Generates secure token and sends email
+  - `/api/auth/reset-password` - Validates token and updates password
+  - Added "Esqueci minha senha" link to login page
+  - Tokens expire in 1 hour for security
 - Implemented simplified quick registration flow at `/cadastro-rapido` (4 fields only)
 - Created 3-step onboarding process at `/onboarding` for profile completion
 - Updated `/api/perfil` GET to return onboarding fields (jaUsaCannabis, documentoIdentidadeUrl, onboardingCompleto)
@@ -65,3 +72,16 @@ The project follows a modular architecture with a clear separation between front
 - **ViaCEP:** API for Brazilian ZIP code auto-completion.
 - **Syncpay:** Payment gateway for Pix transactions.
 - **Agora Video SDK:** For real-time video consultations.
+- **Nodemailer:** SMTP email library for password reset and notifications.
+
+## SMTP Configuration (Required for Password Reset)
+Add these environment variables to enable email sending:
+```
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-password
+SMTP_FROM="ABRACANM" <noreply@abracanm.com>
+NEXT_PUBLIC_BASE_URL=https://abracanm.com
+```
