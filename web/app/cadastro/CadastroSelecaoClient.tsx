@@ -11,7 +11,7 @@ const tiposCadastro = [
     titulo: 'Associado (Paciente)',
     descricao: 'Pacientes que buscam tratamento com cannabis medicinal. Inclui acesso a consultas, prescrições e acompanhamento médico.',
     icon: UserPlus,
-    href: '/cadastro/associado',
+    href: '/cadastro-rapido',
     cor: 'bg-verde-claro/20 text-verde-oliva',
     destaque: true,
   },
