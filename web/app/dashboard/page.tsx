@@ -181,6 +181,11 @@ export default function DashboardPage() {
         return res.json();
       })
       .then((userData) => {
+        if (!userData.onboardingCompleto && userData.role !== 'ADMIN' && userData.role !== 'MEDICO' && !userData.isPrescritor) {
+          router.replace('/onboarding');
+          return;
+        }
+        
         setUser(userData);
         
         if (userData.isPrescritor) {

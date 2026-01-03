@@ -83,6 +83,10 @@ export default function CarteirinhaPage() {
         return res.json();
       })
       .then(userData => {
+        if (!userData.onboardingCompleto && userData.role !== 'ADMIN' && userData.role !== 'MEDICO') {
+          router.replace('/onboarding');
+          return;
+        }
         setUser(userData);
         setLoading(false);
       })
