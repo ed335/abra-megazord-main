@@ -3,6 +3,7 @@
 import { User, Shield, Clock, Video, FileText, Heart, Star, CheckCircle } from "lucide-react"
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import AbracanmLogo from "@/components/icons/AbracanmLogo"
 
 interface HeroCarteirinhaProps {
   className?: string
@@ -42,21 +43,14 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
           >
             <div className="absolute -top-1 left-3 right-3 h-6 md:h-8 rounded-t-xl md:rounded-t-2xl bg-gradient-to-b from-[#4CAF50] to-[#43A047] -z-10" />
             
-            <div className="bg-gradient-to-r from-[#3FA174] to-[#2D8B5F] p-3 md:p-4">
+            <div className="bg-gradient-to-r from-[#38840e] to-[#2d6a0a] p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white/70 text-[9px] md:text-[11px] uppercase tracking-widest font-medium">Associação Brasileira</p>
                   <p className="text-white text-sm md:text-base font-bold tracking-wide">ABRACANM</p>
                 </div>
                 <div className="flex items-center">
-                  <svg className="w-8 h-8 md:w-10 md:h-10 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22V12"/>
-                    <path d="M12 12C12 12 8 10 6 6C6 6 10 7 12 12"/>
-                    <path d="M12 12C12 12 16 10 18 6C18 6 14 7 12 12"/>
-                    <path d="M12 12C12 12 6 8 2 8C2 8 6 11 12 12"/>
-                    <path d="M12 12C12 12 18 8 22 8C22 8 18 11 12 12"/>
-                    <path d="M12 12C12 12 10 6 12 2C12 2 14 6 12 12"/>
-                  </svg>
+                  <AbracanmLogo size={20} />
                 </div>
               </div>
             </div>
@@ -65,7 +59,7 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
                   <div 
-                    className="w-20 h-24 md:w-24 md:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-[#3FA174] flex items-center justify-center overflow-hidden"
+                    className="w-20 h-24 md:w-24 md:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-[#38840e] flex items-center justify-center overflow-hidden"
                   >
                     <User className="w-10 h-10 md:w-12 md:h-12 text-gray-300" />
                   </div>
@@ -86,7 +80,7 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
                       <p className="text-gray-400 text-[7px] md:text-[8px] uppercase tracking-wider">Categoria</p>
                       <div className="flex items-center gap-1">
                         <Star className="w-2.5 h-2.5 md:w-3 md:h-3 text-amber-500 fill-amber-500" />
-                        <p className="text-[#3FA174] text-[11px] md:text-xs font-bold">PREMIUM</p>
+                        <p className="text-[#38840e] text-[11px] md:text-xs font-bold">PREMIUM</p>
                       </div>
                     </div>
                     <div>
@@ -96,8 +90,8 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
                     <div>
                       <p className="text-gray-400 text-[7px] md:text-[8px] uppercase tracking-wider">Validade</p>
                       <div className="flex items-center gap-1">
-                        <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#3FA174]" />
-                        <p className="text-[#3FA174] text-[11px] md:text-xs font-bold">12/2025</p>
+                        <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#38840e]" />
+                        <p className="text-[#38840e] text-[11px] md:text-xs font-bold">12/2025</p>
                       </div>
                     </div>
                   </div>
@@ -109,7 +103,7 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
               <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-3" />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-[#3FA174] to-[#2D8B5F] flex items-center justify-center">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-[#38840e] to-[#2d6a0a] flex items-center justify-center">
                     <svg className="w-4 h-4 md:w-5 md:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13 2h-2v2h2v2h2v-4h2v-2h-4v2zm0-2v-2h2v2h-2zm-4 4h2v2h-2v-2z"/>
                     </svg>
@@ -159,7 +153,7 @@ export function HeroCarteirinha({ className }: HeroCarteirinhaProps) {
       ))}
 
       <div className="absolute -z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[500px] md:h-[500px]">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#3FA174]/5 to-transparent blur-[80px]" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#38840e]/5 to-transparent blur-[80px]" />
         <div className="absolute inset-12 rounded-full bg-gradient-to-tl from-amber-400/5 to-transparent blur-[60px]" />
       </div>
     </div>

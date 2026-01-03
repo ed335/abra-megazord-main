@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Check, ChevronUp, Shield, Calendar, CreditCard, QrCode, User } from "lucide-react"
-import CannabisLeaf from "@/components/icons/CannabisLeaf"
+import AbracanmLogo from "@/components/icons/AbracanmLogo"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from '@/lib/utils'
 import Image from "next/image"
@@ -32,7 +32,7 @@ export function CarteirinhaAssociado({
   const [isFlipped, setIsFlipped] = useState(false)
 
   const statusColors = {
-    ativo: 'bg-[#6B7C59] text-white',
+    ativo: 'bg-[#38840e] text-white',
     pendente: 'bg-amber-500 text-white',
     inativo: 'bg-red-500 text-white'
   }
@@ -62,7 +62,7 @@ export function CarteirinhaAssociado({
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#6B7C59] to-[#4A5A3A] p-0.5">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#38840e] to-[#2d6a0a] p-0.5">
               <div className="relative w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                 {associado.foto ? (
                   <Image
@@ -73,7 +73,7 @@ export function CarteirinhaAssociado({
                     className="rounded-full object-cover"
                   />
                 ) : (
-                  <User className="w-8 h-8 text-[#6B7C59]" />
+                  <User className="w-8 h-8 text-[#38840e]" />
                 )}
               </div>
             </div>
@@ -83,7 +83,7 @@ export function CarteirinhaAssociado({
               <h2 className="text-xl font-bold text-[#1d1d1f]">{associado.nome}</h2>
               {associado.status === 'ativo' && (
                 <motion.div
-                  className="flex items-center justify-center w-5 h-5 bg-[#6B7C59] rounded-full"
+                  className="flex items-center justify-center w-5 h-5 bg-[#38840e] rounded-full"
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
@@ -134,7 +134,7 @@ export function CarteirinhaAssociado({
                     className="absolute inset-0 rounded-2xl p-6 overflow-hidden backface-hidden"
                     style={{ 
                       backfaceVisibility: "hidden",
-                      background: "linear-gradient(135deg, #6B7C59 0%, #4A5A3A 50%, #3d4a30 100%)"
+                      background: "linear-gradient(135deg, #38840e 0%, #2d6a0a 50%, #245808 100%)"
                     }}
                     whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -149,7 +149,7 @@ export function CarteirinhaAssociado({
                     <div className="relative z-10 h-full flex flex-col justify-between">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                          <CannabisLeaf className="text-white" size={32} />
+                          <AbracanmLogo size={20} />
                           <div>
                             <div className="text-white font-bold text-lg tracking-wide">ABRACANM</div>
                             <div className="text-white/70 text-[10px] tracking-wider">
@@ -186,8 +186,8 @@ export function CarteirinhaAssociado({
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Shield className="w-5 h-5 text-[#A8C686]" />
-                          <CreditCard className="w-5 h-5 text-[#A8C686]" />
+                          <Shield className="w-5 h-5 text-[#5ca917]" />
+                          <CreditCard className="w-5 h-5 text-[#5ca917]" />
                         </div>
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export function CarteirinhaAssociado({
                     style={{ 
                       backfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
-                      background: "linear-gradient(135deg, #4A5A3A 0%, #3d4a30 50%, #2d3924 100%)"
+                      background: "linear-gradient(135deg, #2d6a0a 0%, #245808 50%, #1c4506 100%)"
                     }}
                   >
                     {/* Tarja magnética */}
@@ -244,10 +244,10 @@ export function CarteirinhaAssociado({
 
             {showDetails && (
               <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#fafaf8] hover:bg-[#6B7C59]/5 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#fafaf8] hover:bg-[#38840e]/5 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#6B7C59]/10 rounded-lg">
-                      <Calendar className="w-5 h-5 text-[#6B7C59]" />
+                    <div className="p-2 bg-[#38840e]/10 rounded-lg">
+                      <Calendar className="w-5 h-5 text-[#38840e]" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-[#1d1d1f]">Próxima Consulta</div>
@@ -255,7 +255,7 @@ export function CarteirinhaAssociado({
                     </div>
                   </div>
                   <motion.button
-                    className="px-4 py-1.5 rounded-full bg-[#6B7C59] text-white text-sm font-medium"
+                    className="px-4 py-1.5 rounded-full bg-[#38840e] text-white text-sm font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -263,10 +263,10 @@ export function CarteirinhaAssociado({
                   </motion.button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#fafaf8] hover:bg-[#6B7C59]/5 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#fafaf8] hover:bg-[#38840e]/5 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#6B7C59]/10 rounded-lg">
-                      <Shield className="w-5 h-5 text-[#6B7C59]" />
+                    <div className="p-2 bg-[#38840e]/10 rounded-lg">
+                      <Shield className="w-5 h-5 text-[#38840e]" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-[#1d1d1f]">Status da Assinatura</div>
@@ -294,7 +294,7 @@ export function CarteirinhaSimples({ associado }: { associado: AssociadoData }) 
     <motion.div
       className="w-full max-w-sm rounded-2xl p-6 overflow-hidden relative"
       style={{ 
-        background: "linear-gradient(135deg, #6B7C59 0%, #4A5A3A 50%, #3d4a30 100%)"
+        background: "linear-gradient(135deg, #38840e 0%, #2d6a0a 50%, #245808 100%)"
       }}
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -308,7 +308,7 @@ export function CarteirinhaSimples({ associado }: { associado: AssociadoData }) 
       <div className="relative z-10 space-y-6">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <CannabisLeaf className="text-white" size={28} />
+            <AbracanmLogo size={16} />
             <div className="text-white font-bold text-base tracking-wide">ABRACANM</div>
           </div>
           <div className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white/20 text-white">
