@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import * as jsonwebtoken from 'jsonwebtoken';
+import { sendPreAnamneseCompleted } from '@/lib/evolution';
 export const dynamic = 'force-dynamic';
 
 interface PreAnamneseRequest {
@@ -336,6 +337,13 @@ export async function POST(request: NextRequest) {
         recomendacoes: recomendacoes,
         proximosPasso: proximoPasso
       }
+    });
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://abracanm.org.br';
+    const agendamentoLink = `${baseUrl}/paciente/agendar`;
+    
+    sendPreAnamneseCompleted(paciente.whatsapp, paciente.nome, agendamentoLink).catch(err => {
+      console.error('Erro ao enviar WhatsApp pós pré-anamnese:', err);
     });
 
     return NextResponse.json({
