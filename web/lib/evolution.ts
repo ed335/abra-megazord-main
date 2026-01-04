@@ -169,3 +169,110 @@ _Acolhendo você na sua jornada de saúde_`;
 
   return sendWhatsAppMessage({ phone, message });
 }
+
+export async function sendWelcomeMessage(
+  phone: string,
+  patientName: string,
+  preAnamneseLink: string,
+  codigoIndicacao?: string
+): Promise<boolean> {
+  let codigoTexto = '';
+  if (codigoIndicacao) {
+    codigoTexto = `
+
+🎁 *Seu código de indicação:* ${codigoIndicacao}
+Compartilhe com amigos e ganhe recompensas!`;
+  }
+
+  const message = `🌿 *Bem-vindo(a) à ABRACANM!*
+
+Olá, ${patientName}!
+
+Seu cadastro foi realizado com sucesso! 🎉
+
+Estamos muito felizes em ter você conosco nessa jornada de saúde e bem-estar com cannabis medicinal.
+
+📋 *Próximo passo:* Preencha sua pré-anamnese para que possamos entender melhor suas necessidades.
+
+👉 *Clique aqui para preencher:*
+${preAnamneseLink}${codigoTexto}
+
+_ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
+
+  return sendWhatsAppMessage({ phone, message });
+}
+
+export async function sendPreAnamneseCompleted(
+  phone: string,
+  patientName: string,
+  agendamentoLink: string
+): Promise<boolean> {
+  const message = `✅ *ABRACANM - Pré-anamnese Preenchida!*
+
+Olá, ${patientName}!
+
+Sua pré-anamnese foi preenchida com sucesso! 📋
+
+Agora você está mais perto de iniciar seu tratamento com cannabis medicinal.
+
+📅 *Próximo passo:* Agende sua consulta com um de nossos médicos especialistas.
+
+👉 *Clique aqui para agendar:*
+${agendamentoLink}
+
+Nossos médicos analisarão suas informações para oferecer o melhor tratamento personalizado.
+
+_ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
+
+  return sendWhatsAppMessage({ phone, message });
+}
+
+export async function sendReferralNotification(
+  phone: string,
+  indicadorNome: string,
+  indicadoNome: string,
+  pontosGanhos: number,
+  totalPontos: number,
+  nivelAtual: string
+): Promise<boolean> {
+  const message = `🎉 *ABRACANM - Nova Indicação!*
+
+Olá, ${indicadorNome}!
+
+Ótima notícia! *${indicadoNome}* se cadastrou usando seu código de indicação! 🌟
+
+🏆 *+${pontosGanhos} pontos* adicionados à sua conta!
+📊 *Total de pontos:* ${totalPontos}
+🌿 *Seu nível:* ${nivelAtual}
+
+Continue indicando amigos e desbloqueie mais recompensas!
+
+_ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
+
+  return sendWhatsAppMessage({ phone, message });
+}
+
+export async function sendLevelUpNotification(
+  phone: string,
+  patientName: string,
+  novoNivel: string,
+  nivelEmoji: string,
+  beneficios: string[]
+): Promise<boolean> {
+  const beneficiosTexto = beneficios.map(b => `• ${b}`).join('\n');
+
+  const message = `🎊 *ABRACANM - Você Subiu de Nível!*
+
+Parabéns, ${patientName}! 🌟
+
+Você alcançou o nível *${nivelEmoji} ${novoNivel}*!
+
+🎁 *Novos benefícios desbloqueados:*
+${beneficiosTexto}
+
+Continue indicando amigos e suba ainda mais!
+
+_ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
+
+  return sendWhatsAppMessage({ phone, message });
+}

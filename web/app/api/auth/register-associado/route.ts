@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getJWTSecret } from '@/lib/jwt';
+import { gerarCodigoUnico, processarIndicacao, NIVEIS_INDICACAO } from '@/lib/referral';
+import { sendWelcomeMessage, sendReferralNotification, sendLevelUpNotification } from '@/lib/evolution';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
@@ -28,6 +30,7 @@ export async function POST(request: NextRequest) {
       patologiaCID,
       jaUsaCannabis,
       documentosMedicosUrls,
+      codigoIndicacao,
     } = body;
 
     const senhaFinal = senha || password;
@@ -64,6 +67,22 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(senhaFinal, 10);
 
+    let indicadorId: string | null = null;
+    let indicador: { id: string; nome: string; whatsapp: string; pontosIndicacao: number; nivelIndicacao: string } | null = null;
+    
+    if (codigoIndicacao) {
+      const indicadorEncontrado = await prisma.paciente.findUnique({
+        where: { codigoIndicacao: codigoIndicacao.toUpperCase() },
+        select: { id: true, nome: true, whatsapp: true, pontosIndicacao: true, nivelIndicacao: true },
+      });
+      if (indicadorEncontrado) {
+        indicadorId = indicadorEncontrado.id;
+        indicador = indicadorEncontrado;
+      }
+    }
+
+    const novoCodigoIndicacao = await gerarCodigoUnico(nome);
+
     const usuario = await prisma.usuario.create({
       data: {
         email,
@@ -88,12 +107,49 @@ export async function POST(request: NextRequest) {
             patologiaCID: patologiaCID || null,
             jaUsaCannabis: jaUsaCannabis || false,
             documentosMedicosUrls: documentosMedicosUrls || [],
+            codigoIndicacao: novoCodigoIndicacao,
+            indicadoPorId: indicadorId,
           },
         },
       },
       include: {
         paciente: true,
       },
+    });
+
+    if (indicador && indicadorId) {
+      try {
+        const resultado = await processarIndicacao(indicadorId, nome, email);
+        
+        const nivelInfo = NIVEIS_INDICACAO[resultado.novoNivel];
+        await sendReferralNotification(
+          indicador.whatsapp,
+          indicador.nome,
+          nome,
+          resultado.pontosGanhos,
+          indicador.pontosIndicacao + resultado.pontosGanhos,
+          `${nivelInfo.emoji} ${nivelInfo.nome}`
+        );
+
+        if (resultado.subiuDeNivel) {
+          await sendLevelUpNotification(
+            indicador.whatsapp,
+            indicador.nome,
+            nivelInfo.nome,
+            nivelInfo.emoji,
+            nivelInfo.beneficios
+          );
+        }
+      } catch (refError) {
+        console.error('Erro ao processar indicação:', refError);
+      }
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://abracanm.org.br';
+    const preAnamneseLink = `${baseUrl}/paciente/pre-anamnese`;
+    
+    sendWelcomeMessage(whatsapp, nome, preAnamneseLink, novoCodigoIndicacao).catch(err => {
+      console.error('Erro ao enviar WhatsApp de boas-vindas:', err);
     });
 
     const token = jwt.sign(
@@ -113,6 +169,7 @@ export async function POST(request: NextRequest) {
         email: usuario.email,
         role: usuario.role,
         nome: usuario.paciente?.nome,
+        codigoIndicacao: novoCodigoIndicacao,
       },
       access_token: token,
     });
