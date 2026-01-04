@@ -97,74 +97,91 @@ export async function gerarCodigoUnico(nome: string): Promise<string> {
 }
 
 export async function processarIndicacao(indicadorId: string, indicadoNome: string, indicadoEmail: string) {
-  const indicador = await prisma.paciente.findUnique({
-    where: { id: indicadorId },
-    include: { indicados: true },
-  });
+  return await prisma.$transaction(async (tx) => {
+    const totalIndicacoes = await tx.paciente.count({
+      where: { indicadoPorId: indicadorId },
+    });
 
-  if (!indicador) {
-    throw new Error('Indicador não encontrado');
-  }
+    const indicador = await tx.paciente.findUnique({
+      where: { id: indicadorId },
+    });
 
-  const totalIndicacoes = indicador.indicados.length + 1;
-  const novoNivel = calcularNivel(totalIndicacoes);
-  const pontosGanhos = 10;
-
-  await prisma.historicoIndicacao.create({
-    data: {
-      indicadorId,
-      indicadoNome,
-      indicadoEmail,
-      pontosGanhos,
-      nivelNoMomento: indicador.nivelIndicacao,
-      validada: true,
-      validadaEm: new Date(),
-    },
-  });
-
-  const atualizacao: { pontosIndicacao: number; nivelIndicacao?: NivelIndicacao } = {
-    pontosIndicacao: indicador.pontosIndicacao + pontosGanhos,
-  };
-
-  if (novoNivel !== indicador.nivelIndicacao) {
-    atualizacao.nivelIndicacao = novoNivel;
-    
-    const nivelInfo = NIVEIS_INDICACAO[novoNivel];
-    if (nivelInfo.descontoConsulta > 0) {
-      await prisma.recompensaIndicacao.create({
-        data: {
-          pacienteId: indicadorId,
-          tipo: 'DESCONTO_CONSULTA',
-          descricao: `${nivelInfo.descontoConsulta}% de desconto nas consultas`,
-          valorDesconto: nivelInfo.descontoConsulta,
-          nivelDesbloqueio: novoNivel,
-        },
-      });
+    if (!indicador) {
+      throw new Error('Indicador não encontrado');
     }
 
-    if (novoNivel === 'EMBAIXADOR' && totalIndicacoes % 5 === 0) {
-      await prisma.recompensaIndicacao.create({
+    const novoNivel = calcularNivel(totalIndicacoes);
+    const pontosGanhos = 10;
+
+    await tx.historicoIndicacao.create({
+      data: {
+        indicadorId,
+        indicadoNome,
+        indicadoEmail,
+        pontosGanhos,
+        nivelNoMomento: indicador.nivelIndicacao,
+        validada: true,
+        validadaEm: new Date(),
+      },
+    });
+
+    const atualizacao: { pontosIndicacao: number; nivelIndicacao?: NivelIndicacao } = {
+      pontosIndicacao: indicador.pontosIndicacao + pontosGanhos,
+    };
+
+    const subiuDeNivel = novoNivel !== indicador.nivelIndicacao;
+
+    if (subiuDeNivel) {
+      atualizacao.nivelIndicacao = novoNivel;
+      
+      const nivelInfo = NIVEIS_INDICACAO[novoNivel];
+      if (nivelInfo.descontoConsulta > 0) {
+        await tx.recompensaIndicacao.create({
+          data: {
+            pacienteId: indicadorId,
+            tipo: 'DESCONTO_CONSULTA',
+            descricao: `${nivelInfo.descontoConsulta}% de desconto nas consultas`,
+            valorDesconto: nivelInfo.descontoConsulta,
+            nivelDesbloqueio: novoNivel,
+          },
+        });
+      }
+
+      if (novoNivel === 'EMBAIXADOR') {
+        await tx.recompensaIndicacao.create({
+          data: {
+            pacienteId: indicadorId,
+            tipo: 'CONSULTA_GRATIS',
+            descricao: 'Consulta gratuita de boas-vindas - Bônus Embaixador',
+            nivelDesbloqueio: novoNivel,
+          },
+        });
+      }
+    }
+
+    if (novoNivel === 'EMBAIXADOR' && !subiuDeNivel && totalIndicacoes >= 15 && totalIndicacoes % 5 === 0) {
+      await tx.recompensaIndicacao.create({
         data: {
           pacienteId: indicadorId,
           tipo: 'CONSULTA_GRATIS',
-          descricao: 'Consulta gratuita - Bônus Embaixador',
+          descricao: `Consulta gratuita - ${totalIndicacoes} indicações`,
           nivelDesbloqueio: novoNivel,
         },
       });
     }
-  }
 
-  await prisma.paciente.update({
-    where: { id: indicadorId },
-    data: atualizacao,
+    await tx.paciente.update({
+      where: { id: indicadorId },
+      data: atualizacao,
+    });
+
+    return {
+      novoNivel,
+      pontosGanhos,
+      totalIndicacoes,
+      subiuDeNivel,
+    };
   });
-
-  return {
-    novoNivel,
-    pontosGanhos,
-    totalIndicacoes,
-    subiuDeNivel: novoNivel !== indicador.nivelIndicacao,
-  };
 }
 
 export async function getDashboardIndicacao(pacienteId: string) {
