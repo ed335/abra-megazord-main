@@ -38,6 +38,27 @@ enum PerfilIntake {
   CUIDADOR
 }
 
+enum NivelIndicacao {
+  SEMENTE     // 0 indicações
+  BROTO       // 1-2 indicações
+  FLORACAO    // 3-5 indicações
+  COLHEITA    // 6-10 indicações
+  EMBAIXADOR  // 11+ indicações
+}
+
+enum TipoRecompensa {
+  DESCONTO_CONSULTA
+  CONSULTA_GRATIS
+  BADGE
+  PRIORIDADE_AGENDAMENTO
+}
+
+enum StatusRecompensa {
+  DISPONIVEL
+  UTILIZADA
+  EXPIRADA
+}
+
 // ============= Models =============
 
 model Usuario {
@@ -133,12 +154,25 @@ model Paciente {
   assinaturas     Assinatura[]
   pagamentos      Pagamento[]
   
+  // Sistema de Indicação
+  codigoIndicacao   String?   @unique // Código único para indicar amigos (ex: JOAO2024)
+  indicadoPorId     String?   // ID do paciente que indicou
+  indicadoPor       Paciente? @relation("IndicacaoPaciente", fields: [indicadoPorId], references: [id])
+  indicados         Paciente[] @relation("IndicacaoPaciente") // Pacientes indicados por este
+  pontosIndicacao   Int       @default(0) // Total de pontos acumulados
+  nivelIndicacao    NivelIndicacao @default(SEMENTE)
+  
+  historicoIndicacoes HistoricoIndicacao[] @relation("IndicadorHistorico")
+  recompensas       RecompensaIndicacao[]
+  
   criadoEm        DateTime  @default(now())
   atualizadoEm    DateTime  @updatedAt
   
   @@index([usuarioId])
   @@index([cpf])
   @@index([whatsapp])
+  @@index([codigoIndicacao])
+  @@index([indicadoPorId])
 }
 
 model PreAnamnese {
@@ -657,6 +691,54 @@ model Pagamento {
   @@index([status])
   @@index([tipo])
   @@index([criadoEm])
+}
+
+// ============= Sistema de Indicação =============
+
+model HistoricoIndicacao {
+  id              String    @id @default(cuid())
+  
+  indicadorId     String
+  indicador       Paciente  @relation("IndicadorHistorico", fields: [indicadorId], references: [id], onDelete: Cascade)
+  
+  indicadoNome    String    // Nome do paciente indicado
+  indicadoEmail   String    // Email do paciente indicado
+  
+  pontosGanhos    Int       @default(10) // Pontos ganhos com esta indicação
+  nivelNoMomento  NivelIndicacao // Nível do indicador no momento
+  
+  validada        Boolean   @default(false) // Indicação validada (paciente completou cadastro)
+  validadaEm      DateTime?
+  
+  criadoEm        DateTime  @default(now())
+  
+  @@index([indicadorId])
+  @@index([validada])
+  @@index([criadoEm])
+}
+
+model RecompensaIndicacao {
+  id              String    @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  tipo            TipoRecompensa
+  status          StatusRecompensa @default(DISPONIVEL)
+  
+  descricao       String    // Ex: "10% desconto na próxima consulta"
+  valorDesconto   Int?      // Percentual de desconto (10, 20, etc)
+  
+  nivelDesbloqueio NivelIndicacao // Nível em que foi desbloqueada
+  
+  utilizadaEm     DateTime?
+  expiraEm        DateTime?
+  
+  criadoEm        DateTime  @default(now())
+  
+  @@index([pacienteId])
+  @@index([status])
+  @@index([tipo])
 }
 
 // ============= Índices & Constraints =============
