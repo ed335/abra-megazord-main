@@ -271,6 +271,9 @@ model Admin {
   
   criadoEm        DateTime  @default(now())
   atualizadoEm    DateTime  @updatedAt
+  
+  mensagensWhatsApp MensagemWhatsApp[]
+  lotesWhatsApp     LoteMensagemWhatsApp[]
 }
 
 enum StatusCadastro {
@@ -739,6 +742,72 @@ model RecompensaIndicacao {
   @@index([pacienteId])
   @@index([status])
   @@index([tipo])
+}
+
+// ============= Sistema de Mensagens WhatsApp =============
+
+enum TipoMensagemWhatsApp {
+  INDIVIDUAL
+  MASSA
+}
+
+enum StatusMensagemWhatsApp {
+  ENVIADA
+  FALHA
+  PENDENTE
+}
+
+model MensagemWhatsApp {
+  id              String    @id @default(cuid())
+  
+  adminId         String
+  admin           Admin     @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  
+  tipo            TipoMensagemWhatsApp
+  status          StatusMensagemWhatsApp @default(PENDENTE)
+  
+  destinatarioId  String?   // ID do paciente se individual
+  destinatarioNome String?
+  destinatarioWhatsapp String
+  
+  templateNome    String?   // Nome do template usado
+  mensagem        String    @db.Text
+  
+  filtrosUsados   Json?     // Filtros usados para envio em massa
+  
+  erro            String?   // Mensagem de erro se falhou
+  
+  criadoEm        DateTime  @default(now())
+  
+  @@index([adminId])
+  @@index([tipo])
+  @@index([status])
+  @@index([criadoEm])
+}
+
+model LoteMensagemWhatsApp {
+  id              String    @id @default(cuid())
+  
+  adminId         String
+  admin           Admin     @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  
+  templateNome    String?
+  templateTexto   String    @db.Text
+  
+  filtrosUsados   Json?
+  
+  totalDestinatarios Int
+  enviadas        Int       @default(0)
+  falhas          Int       @default(0)
+  
+  status          String    @default("EM_ANDAMENTO") // EM_ANDAMENTO, CONCLUIDO, CANCELADO
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  @@index([adminId])
+  @@index([status])
+  @@index([criadoEm])
 }
 
 // ============= Índices & Constraints =============
