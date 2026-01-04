@@ -18,7 +18,8 @@ export type AcaoAuditoria =
   | 'ENVIO_WHATSAPP'
   | 'CRIAR'
   | 'ATUALIZAR'
-  | 'EXCLUIR';
+  | 'EXCLUIR'
+  | 'RESET_SENHA_ADMIN';
 
 export type RecursoAuditoria = 
   | 'ASSOCIADO'
