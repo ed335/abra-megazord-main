@@ -17,6 +17,8 @@ const noHeaderRoutes = [
   '/consulta',
   '/pre-anamnese',
   '/carteirinha',
+  '/indicacao',
+  '/onboarding',
 ];
 
 export default function Template({ children }: { children: ReactNode }) {
