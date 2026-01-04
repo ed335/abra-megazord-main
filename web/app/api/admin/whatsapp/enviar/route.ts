@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAdminToken } from '@/lib/admin-auth';
 import { sendWhatsAppMessage } from '@/lib/evolution';
 import { registrarLog } from '@/lib/audit-log';
+import type { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const { destinatarios, templateNome, filtrosUsados, tipo = 'MASSA' } = body as {
       destinatarios: DestinatarioInput[];
       templateNome?: string;
-      filtrosUsados?: Record<string, unknown>;
+      filtrosUsados?: Prisma.InputJsonValue;
       tipo?: 'INDIVIDUAL' | 'MASSA';
     };
 
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
         adminId: admin.id,
         templateNome,
         templateTexto: destinatarios[0]?.mensagem || '',
-        filtrosUsados: filtrosUsados || null,
+        filtrosUsados: filtrosUsados || undefined,
         totalDestinatarios: destinatarios.length,
         status: 'EM_ANDAMENTO',
       },
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
             destinatarioWhatsapp: dest.whatsapp,
             templateNome,
             mensagem: dest.mensagem,
-            filtrosUsados: filtrosUsados || null,
+            filtrosUsados: filtrosUsados || undefined,
             erro: sucesso ? null : 'Falha ao enviar via Evolution API',
           },
         });
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
             destinatarioWhatsapp: dest.whatsapp,
             templateNome,
             mensagem: dest.mensagem,
-            filtrosUsados: filtrosUsados || null,
+            filtrosUsados: filtrosUsados || undefined,
             erro: errorMessage,
           },
         });
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     await registrarLog({
       usuarioId: decoded.sub,
-      acao: 'ENVIO_WHATSAPP_REAL',
+      acao: 'ENVIO_WHATSAPP',
       recurso: 'WHATSAPP',
       detalhes: {
         loteId: lote.id,

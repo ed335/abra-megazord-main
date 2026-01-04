@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     await registrarLog({
       usuarioId: decoded.sub,
-      acao: 'ENVIO_WHATSAPP_INDIVIDUAL',
+      acao: 'ENVIO_WHATSAPP',
       recurso: 'WHATSAPP',
       detalhes: {
         whatsapp,
