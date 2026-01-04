@@ -27,6 +27,14 @@
   - 500ms delay between messages in bulk sends to avoid rate limiting
   - Models: MensagemWhatsApp, LoteMensagemWhatsApp for tracking
   - APIs: `/api/admin/whatsapp/enviar`, `/api/admin/whatsapp/enviar-individual`, `/api/admin/whatsapp/historico`
+- **Referral Widget on Dashboard:** Compact gamification widget prominently displayed on user dashboard
+  - ReferralWidget component with level emoji, name, progress bar to next level
+  - Discount benefit display for current level
+  - One-click copy referral code and share buttons
+  - Link to full referral dashboard (`/indicacao`)
+  - Added to both premium member dashboard and non-member dashboard
+  - Fully responsive design with gradient amber/orange styling
+  - Attention-grabbing visual design to encourage referrals
 
 ## Recent Changes (2026-01-03)
 - **CRM Kanban Funnel:** Added visual Kanban board for tracking leads through the sales funnel
