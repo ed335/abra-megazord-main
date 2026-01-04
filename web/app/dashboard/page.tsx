@@ -9,6 +9,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { OnboardingBanner } from '@/components/ui/onboarding-banner';
+import { ReferralWidget } from '@/components/referral/ReferralWidget';
 import { 
   ClipboardList, 
   Calendar,
@@ -675,6 +676,15 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
+          {/* Widget de Indicação */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <ReferralWidget />
+          </motion.div>
+
           {/* Benefícios - Design Limpo */}
           {user.planoAtivo?.beneficios && user.planoAtivo.beneficios.length > 0 && (
             <motion.div
@@ -784,6 +794,8 @@ export default function DashboardPage() {
             onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
         </div>
+
+        <ReferralWidget />
 
         <div className="bg-gradient-to-r from-[#3FA174]/10 to-emerald-50 border border-[#3FA174]/30 rounded-xl p-4">
           <div className="flex items-start gap-3">

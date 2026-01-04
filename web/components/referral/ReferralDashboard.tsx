@@ -65,11 +65,8 @@ export function ReferralDashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const response = await fetchWithAuth<Response>('/api/indicacao');
-      if (response.ok) {
-        const result = await response.json();
-        setData(result);
-      }
+      const result = await fetchWithAuth<DashboardData>('/api/indicacao');
+      setData(result);
     } catch (error) {
       console.error('Erro ao carregar indicações:', error);
     } finally {
@@ -80,11 +77,8 @@ export function ReferralDashboard() {
   const gerarCodigo = async () => {
     setGenerating(true);
     try {
-      const response = await fetchWithAuth<Response>('/api/indicacao', { method: 'POST' });
-      if (response.ok) {
-        const result = await response.json();
-        setData(prev => prev ? { ...prev, codigoIndicacao: result.codigoIndicacao } : null);
-      }
+      const result = await fetchWithAuth<{ codigoIndicacao: string }>('/api/indicacao', { method: 'POST' });
+      setData(prev => prev ? { ...prev, codigoIndicacao: result.codigoIndicacao } : null);
     } catch (error) {
       console.error('Erro ao gerar código:', error);
     } finally {
