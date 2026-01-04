@@ -1,5 +1,22 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
+## Recent Changes (2026-01-04)
+- **Gamified Referral System:** Complete referral program with 5 levels and progressive rewards
+  - `/indicacao` - Dashboard showing referral code, points, level, and rewards
+  - 5 cannabis-themed levels: Semente (🌱), Broto (🌿), Floração (🌸), Colheita (🌳), Embaixador (🏆)
+  - Level thresholds: 0, 1-2, 3-5, 6-10, 11+ referrals
+  - Rewards: Progressive consultation discounts (5-20%) and free consultations for Embaixadors
+  - Unique referral codes generated automatically on registration
+  - `/api/indicacao` - Dashboard API with points, level, recent referrals, and rewards
+  - `/api/indicacao/validar` - Validate referral codes during registration
+- **WhatsApp Notifications (Evolution API):** Automated messages throughout user journey
+  - Welcome message on registration with referral code
+  - Pre-anamnesis completion notification
+  - Referral notification when someone uses your code
+  - Level-up celebration with new benefits
+  - Requires EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE environment variables
+- **Technical Note:** The referral processing uses Prisma transactions to ensure accurate counting and reward distribution. New paciente must be created before calling `processarIndicacao`.
+
 ## Recent Changes (2026-01-03)
 - **CRM Kanban Funnel:** Added visual Kanban board for tracking leads through the sales funnel
   - `/admin/crm` - Kanban-style CRM with 5 columns: Leads, Associados, Pré-anamnese, Consulta Agendada, Consulta Realizada
