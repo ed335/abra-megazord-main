@@ -16,6 +16,17 @@
   - Level-up celebration with new benefits
   - Requires EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE environment variables
 - **Technical Note:** The referral processing uses Prisma transactions to ensure accurate counting and reward distribution. New paciente must be created before calling `processarIndicacao`.
+- **Admin WhatsApp Messaging System:** Complete messaging interface for bulk and individual sends
+  - `/admin/whatsapp` - Tabbed admin interface with Send and History views
+  - Template selection: Boas-vindas, Lembrete Pré-Anamnese, Novidades, Lembrete Consulta
+  - Variable substitution: {nome}, {primeiro_nome}, {cidade}, {estado}, {patologia}
+  - Recipient filtering by city, state, pathology, status
+  - One-click bulk send via Evolution API with confirmation dialog
+  - Individual message sending for targeted communication
+  - Message history with batch tracking and delivery status
+  - 500ms delay between messages in bulk sends to avoid rate limiting
+  - Models: MensagemWhatsApp, LoteMensagemWhatsApp for tracking
+  - APIs: `/api/admin/whatsapp/enviar`, `/api/admin/whatsapp/enviar-individual`, `/api/admin/whatsapp/historico`
 
 ## Recent Changes (2026-01-03)
 - **CRM Kanban Funnel:** Added visual Kanban board for tracking leads through the sales funnel

@@ -1,4 +1,5 @@
 import { getPrismaClient } from '@/lib/admin-auth';
+import type { Prisma } from '@prisma/client';
 
 const prisma = getPrismaClient();
 
@@ -40,13 +41,17 @@ export async function registrarLog(params: {
   userAgent?: string;
 }) {
   try {
+    const detalhesJson: Prisma.InputJsonValue | undefined = params.detalhes 
+      ? JSON.parse(JSON.stringify(params.detalhes)) as Prisma.InputJsonValue
+      : undefined;
+
     await prisma.logAuditoria.create({
       data: {
         usuarioId: params.usuarioId,
         acao: params.acao,
         recurso: params.recurso,
         recursoId: params.recursoId || null,
-        detalhes: params.detalhes ? JSON.parse(JSON.stringify(params.detalhes)) : undefined,
+        detalhes: detalhesJson,
         ipAddress: params.ipAddress || null,
         userAgent: params.userAgent || null,
       },
