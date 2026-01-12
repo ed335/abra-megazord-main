@@ -14,12 +14,12 @@ const nextConfig = {
     ],
   },
   allowedDevOrigins: [
-    "4ded4973-8f8f-43c8-9cc1-50740836af74-00-3g4tngifxlzi4.janeway.replit.dev",
-    "*.replit.dev",
-    "*.repl.co",
-    "127.0.0.1",
-    "localhost",
-    "0.0.0.0"
+    ".replit.dev",
+    ".repl.co",
+    ".spock.replit.dev",
+    ".janeway.replit.dev",
+    ".kirk.replit.dev",
+    ".picard.replit.dev"
   ],
   async rewrites() {
     return [
