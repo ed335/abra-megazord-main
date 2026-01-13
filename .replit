@@ -47,7 +47,7 @@ author = 51347583
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "ssh root@31.97.93.100"
+args = "bash -c 'source .vps.env 2>/dev/null || source ~/.vps.env 2>/dev/null; ssh ${VPS_USER:-root}@${VPS_IP:-your.vps.ip.address}'"
 
 [[ports]]
 localPort = 3001

@@ -62,3 +62,6 @@ docker-compose.override.yml
 
 # Attached assets (temporary files from chat)
 attached_assets/
+
+# VPS Configuration (contains sensitive server information)
+.vps.env
