@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { getAdminToken } from '@/lib/admin-auth-client';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { 
   Search, Filter, RefreshCw, Users, UserCheck, ClipboardList, 
@@ -405,7 +405,7 @@ export default function CrmKanbanClient() {
     setLoading(true);
     setError('');
 
-    const token = getToken();
+    const token = getAdminToken();
     if (!token) {
       router.push('/admin/login');
       return;

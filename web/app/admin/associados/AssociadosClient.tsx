@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { getAdminToken } from '@/lib/admin-auth-client';
 import { 
   FileText, AlertCircle, Clock, Activity, Download, Upload, 
   MessageCircle, Search, X, Edit2, Power, Eye, Image, LogIn, 
@@ -184,7 +184,7 @@ export default function AssociadosClient() {
     setLoading(true);
     setError('');
 
-    const token = getToken();
+    const token = getAdminToken();
     if (!token) {
       router.push('/login');
       return;
@@ -261,7 +261,7 @@ export default function AssociadosClient() {
   };
 
   const fetchPlanos = async () => {
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch('/api/admin/planos', {
         headers: { Authorization: `Bearer ${token}` },
@@ -294,7 +294,7 @@ export default function AssociadosClient() {
     if (!selectedAssociado || !selectedPlanoId) return;
     
     setAtribuindoPlano(true);
-    const token = getToken();
+    const token = getAdminToken();
     
     try {
       const response = await fetch(`/api/admin/associados/${selectedAssociado.id}/atribuir-plano`, {
@@ -343,7 +343,7 @@ export default function AssociadosClient() {
     }
 
     setResetandoSenha(true);
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch(`/api/admin/associados/${selectedAssociado.id}/reset-password`, {
@@ -374,7 +374,7 @@ export default function AssociadosClient() {
   const handleViewDocs = async (associado: Associado) => {
     setDocsLoading(true);
     setShowDocsModal(true);
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch(`/api/admin/associados/${associado.id}/documentos`, {
@@ -421,7 +421,7 @@ export default function AssociadosClient() {
     if (!selectedAssociado) return;
     
     setSaving(true);
-    const token = getToken();
+    const token = getAdminToken();
     
     try {
       const response = await fetch(`/api/admin/associados/${selectedAssociado.id}`, {
@@ -449,7 +449,7 @@ export default function AssociadosClient() {
 
   const handleToggleStatus = async (associado: Associado) => {
     setTogglingId(associado.id);
-    const token = getToken();
+    const token = getAdminToken();
     
     try {
       const response = await fetch(`/api/admin/associados/${associado.id}/toggle-status`, {
@@ -472,7 +472,7 @@ export default function AssociadosClient() {
   };
 
   const handleImpersonate = async (associado: Associado) => {
-    const token = getToken();
+    const token = getAdminToken();
     
     try {
       const response = await fetch('/api/admin/impersonate', {
@@ -507,7 +507,7 @@ export default function AssociadosClient() {
 
   const handleExport = async () => {
     setExporting(true);
-    const token = getToken();
+    const token = getAdminToken();
     if (!token) {
       router.push('/login');
       return;
@@ -546,7 +546,7 @@ export default function AssociadosClient() {
 
     setImporting(true);
     setImportResult(null);
-    const token = getToken();
+    const token = getAdminToken();
 
     const formData = new FormData();
     formData.append('file', file);

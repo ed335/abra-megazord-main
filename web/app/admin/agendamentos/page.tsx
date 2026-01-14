@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { getAdminToken } from '@/lib/admin-auth-client';
 import { 
   Calendar, 
   Clock, 
@@ -125,7 +125,7 @@ export default function AgendamentosPage() {
   const router = useRouter();
 
   const fetchStats = useCallback(async () => {
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch('/api/admin/agendamentos/stats', {
         headers: { Authorization: `Bearer ${token}` }
@@ -143,7 +143,7 @@ export default function AgendamentosPage() {
 
   const fetchAgendamentos = useCallback(async () => {
     setLoading(true);
-    const token = getToken();
+    const token = getAdminToken();
     
     const params = new URLSearchParams({
       page: page.toString(),
@@ -177,7 +177,7 @@ export default function AgendamentosPage() {
   }, [page, filtros, router]);
 
   const fetchPacientes = async () => {
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch('/api/admin/associados?limit=1000', {
         headers: { Authorization: `Bearer ${token}` }
@@ -200,7 +200,7 @@ export default function AgendamentosPage() {
       return;
     }
     
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch('/api/admin/agendamentos', {
         method: 'POST',
@@ -234,7 +234,7 @@ export default function AgendamentosPage() {
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch(`/api/admin/agendamentos/${id}`, {
         method: 'PUT',
@@ -280,7 +280,7 @@ export default function AgendamentosPage() {
   const handleEditAgendamento = async () => {
     if (!editAgendamento) return;
     
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch(`/api/admin/agendamentos/${editAgendamento.id}`, {
         method: 'PUT',
@@ -306,7 +306,7 @@ export default function AgendamentosPage() {
   };
 
   const handleDeleteAgendamento = async (id: string) => {
-    const token = getToken();
+    const token = getAdminToken();
     try {
       const response = await fetch(`/api/admin/agendamentos/${id}`, {
         method: 'DELETE',

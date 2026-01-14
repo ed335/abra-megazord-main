@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { getAdminToken } from '@/lib/admin-auth-client';
 import { 
   MessageCircle, 
   Send, 
@@ -117,7 +117,7 @@ export default function WhatsAppPage() {
 
   const carregarHistorico = async () => {
     setLoadingHistorico(true);
-    const token = getToken();
+    const token = getAdminToken();
     
     try {
       const response = await fetch('/api/admin/whatsapp/historico', {
@@ -145,7 +145,7 @@ export default function WhatsAppPage() {
     setLoading(true);
     setError('');
     setSuccess('');
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch('/api/admin/whatsapp', {
@@ -191,7 +191,7 @@ export default function WhatsAppPage() {
     setSending(true);
     setError('');
     setSuccess('');
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch('/api/admin/whatsapp/enviar', {

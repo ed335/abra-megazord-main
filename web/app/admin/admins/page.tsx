@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { getAdminToken } from '@/lib/admin-auth-client';
 import { Shield, UserPlus, Trash2, X, Mail, Lock, User } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 
@@ -36,7 +36,7 @@ export default function AdminsPage() {
   const router = useRouter();
 
   const fetchAdmins = useCallback(async () => {
-    const token = getToken();
+    const token = getAdminToken();
     if (!token) {
       router.push('/login');
       return;
@@ -76,7 +76,7 @@ export default function AdminsPage() {
     setCreating(true);
     setError('');
 
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch('/api/admin/admins', {
@@ -106,7 +106,7 @@ export default function AdminsPage() {
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
-    const token = getToken();
+    const token = getAdminToken();
 
     try {
       const response = await fetch(`/api/admin/admins/${id}`, {
