@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -17,20 +18,24 @@ import {
   ClipboardList,
   Video,
   Home,
-  Kanban
+  Kanban,
+  Stethoscope
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getAdminToken } from '@/lib/admin-auth-client';
 
 interface NavItem {
   href: string;
   label: string;
   icon: React.ElementType;
+  badge?: number;
 }
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/crm', label: 'CRM Funil', icon: Kanban },
   { href: '/admin/associados', label: 'Associados', icon: Users },
+  { href: '/admin/medicos', label: 'Médicos', icon: Stethoscope },
   { href: '/admin/agendamentos', label: 'Agendamentos', icon: Calendar },
   { href: '/admin/assinaturas', label: 'Assinaturas', icon: FileText },
   { href: '/admin/pagamentos', label: 'Pagamentos', icon: CreditCard },
@@ -50,6 +55,37 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ isOpen, onClose, collapsed = false, onToggleCollapse }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [navItems, setNavItems] = useState<NavItem[]>(baseNavItems);
+
+  useEffect(() => {
+    const fetchPendingDoctors = async () => {
+      const token = getAdminToken();
+      if (!token) return;
+
+      try {
+        const response = await fetch('/api/admin/medicos?status=pendentes&limit=1', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const pendentes = data.stats?.pendentes || 0;
+          if (pendentes > 0) {
+            setNavItems(items => 
+              items.map(item => 
+                item.href === '/admin/medicos' 
+                  ? { ...item, badge: pendentes }
+                  : item
+              )
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching pending doctors:', err);
+      }
+    };
+
+    fetchPendingDoctors();
+  }, []);
 
   return (
     <>
@@ -130,7 +166,7 @@ export default function AdminSidebar({ isOpen, onClose, collapsed = false, onTog
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                    "relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
                     collapsed && "lg:justify-center lg:px-2",
                     isActive 
                       ? "bg-verde-oliva text-white" 
@@ -140,6 +176,16 @@ export default function AdminSidebar({ isOpen, onClose, collapsed = false, onTog
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   <span className={cn(collapsed && "lg:hidden")}>{item.label}</span>
+                  {item.badge && item.badge > 0 && !collapsed && (
+                    <span className="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                  {item.badge && item.badge > 0 && collapsed && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center lg:flex hidden">
+                      {item.badge > 9 ? '9+' : item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
