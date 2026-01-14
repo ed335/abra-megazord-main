@@ -1,5 +1,16 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
+## Recent Changes (2026-01-14)
+- **Production Deployment Readiness:**
+  - Created `setup.sh` - Automated install/update script for VPS deployment
+  - Created `.env.example` - Complete documentation of all environment variables
+  - Updated `ecosystem.config.js` - PM2 configuration for frontend (5000) and backend (3001)
+  - **Security Fix:** JWT_SECRET is now mandatory (no fallback to dev secret)
+  - Backend throws error on startup if JWT_SECRET is missing
+  - Fixed nodemailer dependency in frontend
+  - Fixed carteirinha design (removed black bar on back side)
+  - All TypeScript and Prisma validation passing
+
 ## Recent Changes (2026-01-04)
 - **Gamified Referral System:** Complete referral program with 5 levels and progressive rewards
   - `/indicacao` - Dashboard showing referral code, points, level, and rewards
