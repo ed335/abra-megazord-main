@@ -156,9 +156,7 @@ export function CarteirinhaFlip({ associado, className }: CarteirinhaFlipProps) 
               transform: "rotateY(180deg)"
             }}
           >
-            <div className="absolute top-8 left-0 right-0 h-10 bg-[#1d1d1f]" />
-            
-            <div className="h-full flex flex-col p-4 md:p-5 pt-20">
+            <div className="h-full flex flex-col p-4 md:p-5">
               <div className="bg-white/95 rounded-xl p-3 md:p-4 mb-3 shadow-lg">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
