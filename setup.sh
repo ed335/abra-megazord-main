@@ -108,13 +108,25 @@ echo "---------------------------------"
 cd ../web
 
 if [ "$MODE" = "update" ]; then
-    echo "Aplicando alterações no schema (mantendo dados)..."
-    npx prisma db push --accept-data-loss 2>/dev/null || npx prisma db push
+    echo "Aplicando alterações no schema (mantendo dados existentes)..."
+    print_warning "Se houver conflitos no schema, revise manualmente antes de continuar."
+    echo ""
+    if ! npx prisma db push; then
+        echo ""
+        print_error "Falha ao sincronizar o banco de dados."
+        print_warning "Isso pode ocorrer se houver alterações destrutivas no schema."
+        echo ""
+        echo "Opções:"
+        echo "  1. Revise o schema e remova alterações destrutivas"
+        echo "  2. Faça backup do banco e execute: npx prisma db push --accept-data-loss"
+        echo "  3. Para ambiente de dev, use: npx prisma migrate reset"
+        exit 1
+    fi
 else
     echo "Criando estrutura do banco de dados..."
     npx prisma db push
 fi
-print_status "Banco de dados atualizado"
+print_status "Banco de dados sincronizado"
 
 echo ""
 echo "6. Construindo aplicações..."
