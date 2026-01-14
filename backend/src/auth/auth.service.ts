@@ -133,7 +133,7 @@ export class AuthService {
   private signToken(userId: string, email: string, role: Role) {
     const payload = { sub: userId, email, role };
     return this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET || 'dev-secret',
+      secret: process.env.JWT_SECRET,
       expiresIn: (process.env.JWT_EXPIRATION ?? '15m') as any,
     });
   }

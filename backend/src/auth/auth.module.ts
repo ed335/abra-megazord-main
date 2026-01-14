@@ -4,11 +4,15 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
+}
+
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'dev-secret',
-      // Cast porque o tipo de expiresIn em jsonwebtoken aceita string/number
+      secret: jwtSecret,
       signOptions: {
         expiresIn: (process.env.JWT_EXPIRATION ?? '15m') as any,
       },
