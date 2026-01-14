@@ -158,7 +158,7 @@ export default function WhatsAppPage() {
       });
 
       if (response.status === 401 || response.status === 403) {
-        router.push('/login');
+        router.push('/admin/login');
         return;
       }
 

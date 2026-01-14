@@ -131,7 +131,7 @@ export default function AgendamentosPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 401) {
-        router.push('/login');
+        router.push('/admin/login');
         return;
       }
       const data = await response.json();
@@ -161,7 +161,7 @@ export default function AgendamentosPage() {
       });
       
       if (response.status === 401) {
-        router.push('/login');
+        router.push('/admin/login');
         return;
       }
       

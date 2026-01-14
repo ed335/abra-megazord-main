@@ -186,7 +186,7 @@ export default function AssociadosClient() {
 
     const token = getAdminToken();
     if (!token) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 
@@ -509,7 +509,7 @@ export default function AssociadosClient() {
     setExporting(true);
     const token = getAdminToken();
     if (!token) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 

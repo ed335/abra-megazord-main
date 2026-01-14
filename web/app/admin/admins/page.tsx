@@ -38,7 +38,7 @@ export default function AdminsPage() {
   const fetchAdmins = useCallback(async () => {
     const token = getAdminToken();
     if (!token) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 
@@ -50,7 +50,7 @@ export default function AdminsPage() {
       });
 
       if (response.status === 401 || response.status === 403) {
-        router.push('/login');
+        router.push('/admin/login');
         return;
       }
 
