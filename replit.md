@@ -1,6 +1,12 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
 ## Recent Changes (2026-01-14)
+- **LGPD Compliance Implementation:**
+  - Created `web/lib/crypto.ts` - Encryption utilities (AES-256-GCM) and data masking functions
+  - Added security headers: HSTS, CSP (upgrade-insecure-requests), Permissions-Policy
+  - Created `LGPD_COMPLIANCE.md` - Complete compliance documentation and production setup guide
+  - Added `ENCRYPTION_KEY` environment variable for data encryption
+  - Functions available: `encrypt()`, `decrypt()`, `maskCPF()`, `maskPhone()`, `maskEmail()`, `hashForAudit()`
 - **Production Deployment Readiness:**
   - Created `setup.sh` - Automated install/update script for VPS deployment
   - Created `.env.example` - Complete documentation of all environment variables
