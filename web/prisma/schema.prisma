@@ -219,6 +219,13 @@ model Prescritor {
   whatsapp        String?
   fotoUrl         String?
   
+  // Marketplace - Perfil público
+  bio             String?   // Descrição profissional
+  experiencia     String?   // Anos de experiência ou resumo
+  especialidades  String[]  @default([]) // Tags de especialidades adicionais
+  consultaValor   Decimal?  @db.Decimal(10, 2) // Valor da consulta em R$
+  marketplaceVisible Boolean @default(false) // Visível no marketplace
+  
   // Validação
   crmVerificado   Boolean   @default(false)
   dataVerificacao DateTime?
@@ -239,6 +246,7 @@ model Prescritor {
   @@index([usuarioId])
   @@index([crm])
   @@index([aceitaNovosPacientes])
+  @@index([marketplaceVisible])
 }
 
 // Disponibilidade semanal do médico
