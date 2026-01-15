@@ -22,7 +22,7 @@ async function verifyToken(request: NextRequest) {
 
   try {
     const jwtSecret = getJWTSecret();
-    const decoded = jsonwebtoken.verify(token, jwtSecret) as { sub: string };
+    const decoded = jsonwebtoken.verify(token, jwtSecret) as { sub?: string; userId?: string };
     return decoded;
   } catch {
     return null;
@@ -32,12 +32,13 @@ async function verifyToken(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const tokenData = await verifyToken(request);
-    if (!tokenData) {
+    const usuarioId = tokenData?.userId || tokenData?.sub;
+    if (!tokenData || !usuarioId) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
     const usuario = await prisma.usuario.findUnique({
-      where: { id: tokenData.sub },
+      where: { id: usuarioId },
       include: {
         prescritor: true,
       },
