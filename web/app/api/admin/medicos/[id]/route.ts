@@ -68,7 +68,7 @@ export async function GET(
     const consultasRealizadas = await prisma.agendamento.count({
       where: {
         prescritorId: id,
-        status: 'REALIZADA',
+        status: 'CONCLUIDO',
       },
     });
 

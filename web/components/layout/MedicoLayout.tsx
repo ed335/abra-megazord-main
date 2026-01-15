@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   { href: '/medico/agenda', label: 'Minha Agenda', icon: Calendar },
   { href: '/medico/pacientes', label: 'Meus Pacientes', icon: Users },
   { href: '/medico/consultas', label: 'Teleconsulta', icon: Video },
-  { href: '/medico/prescricoes', label: 'Prescrições', icon: FileText },
+  { href: '/medico/prescricao', label: 'Nova Prescrição', icon: FileText },
 ];
 
 interface MedicoLayoutProps {
@@ -50,7 +50,7 @@ export default function MedicoLayout({ children, medico }: MedicoLayoutProps) {
 
   const handleLogout = () => {
     removeMedicoToken();
-    router.push('/login');
+    router.push('/login-medico');
   };
 
   return (

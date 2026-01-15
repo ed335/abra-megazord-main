@@ -51,7 +51,7 @@ export default function MedicoAgendaPage() {
   useEffect(() => {
     const token = getMedicoToken();
     if (!token) {
-      router.replace('/login');
+      router.replace('/login-medico');
     }
   }, [router]);
 
@@ -76,7 +76,7 @@ export default function MedicoAgendaPage() {
       setConsultas(response.consultas || []);
     } catch (err: any) {
       if (err?.code === 'UNAUTHORIZED') {
-        router.replace('/login');
+        router.replace('/login-medico');
         return;
       }
       toast.error('Erro ao carregar agenda');

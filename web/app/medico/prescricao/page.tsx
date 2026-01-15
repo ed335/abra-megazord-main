@@ -55,7 +55,7 @@ export default function MedicoPrescricaoPage() {
   useEffect(() => {
     const token = getMedicoToken();
     if (!token) {
-      router.replace('/login');
+      router.replace('/login-medico');
       return;
     }
 

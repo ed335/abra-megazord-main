@@ -1,6 +1,38 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
 ## Recent Changes (2026-01-14)
+- **Complete Doctor Management System:**
+  - **Admin Panel for Doctors (`/admin/medicos`):**
+    - Listing with filters (Todos/Pendentes/Aprovados) and search
+    - CRM approval workflow with confirmation modal
+    - Stats showing total doctors and pending approvals
+    - All approval/rejection actions logged for audit trail
+  - **Doctor Authentication (Separate from Admin/Patient):**
+    - `web/lib/medico-auth.ts` - Server-side token verification for doctors
+    - `web/lib/medico-auth-client.ts` - Client-side token management
+    - JWT-based authentication with CRM verification checks
+    - Redirects to `/login-medico` for doctor-specific login
+  - **Doctor Portal (`/medico/*`):**
+    - `/medico` - Dashboard with "Meu Dia" showing today's consultations, weekly stats, and alerts
+    - `/medico/agenda` - Visual weekly calendar with 7-day schedule view
+    - `/medico/consultas` - Teleconsultation interface with start/end consultation flow
+    - `/medico/prescricao` - Prescription issuance with ANVISA RDC 660/2022 compliance
+    - `/medico/paciente/[id]` - Complete patient prontuário (medical records)
+    - `/medico/pacientes` - Full patient list with search and filtering
+  - **Security (LGPD Compliant):**
+    - Doctor-patient relationship verified before accessing patient data
+    - Prescriptions only allowed for patients with existing appointments
+    - CPF masking in patient data display
+    - CRM verification required for all prescription operations
+  - **New APIs:**
+    - `/api/admin/medicos` - List doctors with stats
+    - `/api/admin/medicos/[id]/aprovar` - Approve/reject CRM
+    - `/api/medico/dashboard` - Doctor daily metrics
+    - `/api/medico/consultas-hoje` - Today's consultations
+    - `/api/medico/prescricao` - Issue prescription
+    - `/api/medico/paciente/[id]` - Get patient prontuário
+  - **Audit Actions Added:** APROVAR_MEDICO, REJEITAR_MEDICO for tracking doctor CRM approvals
+
 - **LGPD Compliance Implementation:**
   - Created `web/lib/crypto.ts` - Encryption utilities (AES-256-GCM) and data masking functions
   - Added security headers: HSTS, CSP (upgrade-insecure-requests), Permissions-Policy

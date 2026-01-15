@@ -70,7 +70,7 @@ export default function MedicoConsultasPage() {
       }
     } catch (err: any) {
       if (err?.code === 'UNAUTHORIZED') {
-        router.replace('/login');
+        router.replace('/login-medico');
         return;
       }
       console.error('Erro ao carregar agendamentos:', err);
@@ -82,7 +82,7 @@ export default function MedicoConsultasPage() {
   useEffect(() => {
     const token = getMedicoToken();
     if (!token) {
-      router.replace('/login');
+      router.replace('/login-medico');
       return;
     }
     loadAgendamentos();

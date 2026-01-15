@@ -80,7 +80,7 @@ export default function MedicoDashboardPage() {
   useEffect(() => {
     const token = getMedicoToken();
     if (!token) {
-      router.replace('/login');
+      router.replace('/login-medico');
       return;
     }
   }, [router]);
@@ -91,7 +91,7 @@ export default function MedicoDashboardPage() {
       setData(response);
     } catch (err: any) {
       if (err?.code === 'UNAUTHORIZED') {
-        router.replace('/login');
+        router.replace('/login-medico');
         return;
       }
       toast.error('Erro ao carregar dashboard');

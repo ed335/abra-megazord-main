@@ -46,6 +46,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const hasRelationship = await prisma.agendamento.findFirst({
+      where: {
+        pacienteId,
+        prescritorId: prescritor.id,
+      },
+    });
+
+    if (!hasRelationship) {
+      return NextResponse.json(
+        { error: 'Você não tem permissão para prescrever para este paciente' },
+        { status: 403 }
+      );
+    }
+
     const paciente = await prisma.paciente.findUnique({
       where: { id: pacienteId },
     });

@@ -79,7 +79,7 @@ export default function MedicoPacienteProntuarioPage() {
   useEffect(() => {
     const token = getMedicoToken();
     if (!token) {
-      router.replace('/login');
+      router.replace('/login-medico');
       return;
     }
 
@@ -91,7 +91,7 @@ export default function MedicoPacienteProntuarioPage() {
         setPaciente(response.paciente);
       } catch (err: any) {
         if (err?.code === 'UNAUTHORIZED') {
-          router.replace('/login');
+          router.replace('/login-medico');
           return;
         }
         console.error('Erro ao carregar paciente:', err);

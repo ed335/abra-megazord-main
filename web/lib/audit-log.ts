@@ -20,7 +20,9 @@ export type AcaoAuditoria =
   | 'CRIAR'
   | 'ATUALIZAR'
   | 'EXCLUIR'
-  | 'RESET_SENHA_ADMIN';
+  | 'RESET_SENHA_ADMIN'
+  | 'APROVAR_MEDICO'
+  | 'REJEITAR_MEDICO';
 
 export type RecursoAuditoria = 
   | 'ASSOCIADO'
@@ -29,7 +31,8 @@ export type RecursoAuditoria =
   | 'SISTEMA'
   | 'DOCUMENTOS'
   | 'WHATSAPP'
-  | 'AGENDAMENTO';
+  | 'AGENDAMENTO'
+  | 'PRESCRITOR';
 
 export async function registrarLog(params: {
   usuarioId: string;

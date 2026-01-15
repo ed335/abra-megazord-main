@@ -110,7 +110,7 @@ export default function MedicoPacientesPage() {
       }
     } catch (err: any) {
       if (err?.code === 'UNAUTHORIZED') {
-        router.replace('/login');
+        router.replace('/login-medico');
         return;
       }
       setError(err?.message || 'Erro ao carregar pacientes');

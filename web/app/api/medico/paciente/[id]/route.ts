@@ -22,6 +22,20 @@ export async function GET(
     const { prescritor } = auth;
     const { id } = params;
 
+    const hasRelationship = await prisma.agendamento.findFirst({
+      where: {
+        pacienteId: id,
+        prescritorId: prescritor.id,
+      },
+    });
+
+    if (!hasRelationship) {
+      return NextResponse.json(
+        { error: 'Você não tem permissão para acessar este paciente' },
+        { status: 403 }
+      );
+    }
+
     const paciente = await prisma.paciente.findUnique({
       where: { id },
       select: {
@@ -31,10 +45,7 @@ export async function GET(
         whatsapp: true,
         cpf: true,
         dataNascimento: true,
-        preAnamnese: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
+        preAnamnese: true,
         agendamentos: {
           where: { prescritorId: prescritor.id },
           orderBy: { dataHora: 'desc' },
@@ -52,7 +63,8 @@ export async function GET(
           take: 10,
           select: {
             id: true,
-            conteudo: true,
+            descricao: true,
+            dosagem: true,
             criadoEm: true,
             status: true,
           },
@@ -71,6 +83,10 @@ export async function GET(
       paciente: {
         ...paciente,
         cpf: paciente.cpf ? `***.***.${paciente.cpf.slice(-6, -2)}-**` : null,
+        prescricoes: paciente.prescricoes.map(p => ({
+          ...p,
+          conteudo: p.descricao,
+        })),
       },
     });
   } catch (error) {
