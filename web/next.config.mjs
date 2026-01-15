@@ -13,16 +13,7 @@ const nextConfig = {
       },
     ],
   },
-  allowedDevOrigins: [
-    ".replit.dev",
-    ".repl.co",
-    ".spock.replit.dev",
-    ".janeway.replit.dev",
-    ".kirk.replit.dev",
-    ".picard.replit.dev",
-    "127.0.0.1",
-    "localhost"
-  ],
+  allowedDevOrigins: ["*"],
   async rewrites() {
     return [
       {
