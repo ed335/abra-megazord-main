@@ -13,9 +13,13 @@ function getJWTSecret(): string {
 }
 
 export type MedicoTokenPayload = {
-  sub: string;
+  userId: string;
+  prescritorId: string;
   role: string;
   email: string;
+  nome: string;
+  crm: string;
+  crmVerificado: boolean;
 };
 
 export async function verifyMedicoToken(request: NextRequest): Promise<{
@@ -39,12 +43,12 @@ export async function verifyMedicoToken(request: NextRequest): Promise<{
     const jwtSecret = getJWTSecret();
     const decoded = jsonwebtoken.verify(token, jwtSecret) as MedicoTokenPayload;
     
-    if (decoded.role !== 'MEDICO') {
+    if (decoded.role !== 'PRESCRITOR') {
       return null;
     }
 
     const prescritor = await prisma.prescritor.findFirst({
-      where: { usuarioId: decoded.sub },
+      where: { id: decoded.prescritorId },
       select: {
         id: true,
         nome: true,
