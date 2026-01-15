@@ -1,5 +1,16 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
+## Recent Changes (2026-01-15)
+- **Marketplace Integration with Dashboard:**
+  - "Agendar" button in dashboard now shows selection dialog:
+    - "Consulta do Plano" → `/agendar-consulta` (for subscribers)
+    - "Consulta Avulsa" → `/marketplace` (choose doctor)
+  - Works for both subscribers and non-subscribers
+- **Doctor Marketplace:** `/marketplace` with card-based UI, search, specialty filters
+- **Doctor Profile Settings:** `/medico/configuracoes` for bio, pricing, visibility
+- **Test Plans Added:** 4 subscription plans (Básico, Premium, Trimestral, Anual VIP)
+- **Test Doctors:** Dr. Ricardo R$350, Dr. Marcos R$450 (marketplace-visible)
+
 ## Overview
 ABRACANM is a comprehensive platform for managing medical cannabis patients in Brazil. It facilitates patient registration, appointment scheduling, payment processing, video consultations, and digital prescription generation. The platform aims to provide accessible, science-backed, and humane solutions for patients seeking cannabis medicine, breaking down taboos and focusing on health, quality of life, and longevity. Key capabilities include a doctor marketplace, a gamified referral system, WhatsApp notifications, and a robust admin CRM funnel.
 

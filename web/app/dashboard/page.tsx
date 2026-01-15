@@ -34,8 +34,17 @@ import {
   Search,
   MapPin,
   Heart,
-  Stethoscope
+  Stethoscope,
+  UserCircle2,
+  X,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type PlanoAtivo = {
   id: string;
@@ -160,6 +169,61 @@ export default function DashboardPage() {
   const [medicoStats, setMedicoStats] = useState<MedicoStats | null>(null);
   const [medicoFilter, setMedicoFilter] = useState<'todos' | 'hoje' | 'semana' | 'aguardando'>('todos');
   const [medicoSearch, setMedicoSearch] = useState('');
+  const [showAgendarDialog, setShowAgendarDialog] = useState(false);
+
+  const handleAgendarClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowAgendarDialog(true);
+  };
+
+  const AgendarDialog = () => (
+    <Dialog open={showAgendarDialog} onOpenChange={setShowAgendarDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Como deseja agendar?</DialogTitle>
+          <DialogDescription>
+            Escolha o tipo de consulta que deseja agendar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          {user?.planoAtivo && (
+            <button
+              onClick={() => {
+                setShowAgendarDialog(false);
+                router.push('/agendar-consulta');
+              }}
+              className="flex items-center gap-4 p-4 bg-[#3FA174]/5 border border-[#3FA174]/20 rounded-xl hover:bg-[#3FA174]/10 transition-all text-left"
+            >
+              <div className="w-12 h-12 bg-[#3FA174] rounded-full flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">Consulta do Plano</p>
+                <p className="text-sm text-gray-500">Usar minha consulta inclusa no plano {user?.planoAtivo?.nome}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 ml-auto" />
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setShowAgendarDialog(false);
+              router.push('/marketplace');
+            }}
+            className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-[#3FA174]/50 hover:bg-gray-50 transition-all text-left"
+          >
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <UserCircle2 className="w-6 h-6 text-gray-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Consulta Avulsa</p>
+              <p className="text-sm text-gray-500">Escolha seu médico no marketplace e pague por consulta</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400 ml-auto" />
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   useEffect(() => {
     const token = getToken();
@@ -562,7 +626,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-4"
           >
-            <div onClick={(e) => handleProtectedClick(e, '/agendar-consulta')} className="group cursor-pointer">
+            <div onClick={handleAgendarClick} className="group cursor-pointer">
               <div className="bg-[#3FA174] rounded-2xl p-5 text-white transition-all hover:shadow-lg hover:scale-[1.02]">
                 <Calendar className="w-6 h-6 mb-3" />
                 <p className="font-medium">Agendar</p>
@@ -667,7 +731,7 @@ export default function DashboardPage() {
                   <Button 
                     size="sm" 
                     className="bg-gray-900 hover:bg-gray-800"
-                    onClick={(e) => handleProtectedClick(e, '/agendar-consulta')}
+                    onClick={handleAgendarClick}
                   >
                     Agendar agora
                   </Button>
@@ -675,6 +739,8 @@ export default function DashboardPage() {
               </div>
             </motion.div>
           )}
+
+          <AgendarDialog />
 
           {/* Widget de Indicação */}
           <motion.div
@@ -770,12 +836,17 @@ export default function DashboardPage() {
             done={hasPreAnamnese}
             onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
-          <QuickAction 
-            href="/agendar" 
-            icon={Calendar} 
-            label="Agendar"
-            onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
-          />
+          <div 
+            onClick={handleAgendarClick}
+            className="group bg-card border border-border rounded-lg p-4 hover:border-primary/40 hover:shadow-sm transition-all h-full cursor-pointer"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <Calendar className="w-5 h-5 text-primary" />
+            </div>
+            <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+              Agendar
+            </p>
+          </div>
           <QuickAction 
             href="/planos" 
             icon={CreditCard} 
@@ -794,6 +865,8 @@ export default function DashboardPage() {
             onProtectedClick={isProfileIncomplete ? handleProtectedClick : undefined}
           />
         </div>
+
+        <AgendarDialog />
 
         <ReferralWidget />
 
