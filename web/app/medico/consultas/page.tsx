@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -44,7 +44,7 @@ interface Agendamento {
   };
 }
 
-export default function MedicoConsultasPage() {
+function MedicoConsultasContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const consultaIdParam = searchParams.get('id');
@@ -387,5 +387,19 @@ export default function MedicoConsultasPage() {
         )}
       </div>
     </MedicoLayout>
+  );
+}
+
+export default function MedicoConsultasPage() {
+  return (
+    <Suspense fallback={
+      <MedicoLayout>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-verde-oliva" />
+        </div>
+      </MedicoLayout>
+    }>
+      <MedicoConsultasContent />
+    </Suspense>
   );
 }

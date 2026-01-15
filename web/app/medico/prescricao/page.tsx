@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -26,7 +26,7 @@ interface Paciente {
   dataNascimento: string;
 }
 
-export default function MedicoPrescricaoPage() {
+function MedicoPrescricaoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const consultaId = searchParams.get('consulta');
@@ -376,5 +376,19 @@ export default function MedicoPrescricaoPage() {
         </form>
       </div>
     </MedicoLayout>
+  );
+}
+
+export default function MedicoPrescricaoPage() {
+  return (
+    <Suspense fallback={
+      <MedicoLayout>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-verde-oliva" />
+        </div>
+      </MedicoLayout>
+    }>
+      <MedicoPrescricaoContent />
+    </Suspense>
   );
 }
