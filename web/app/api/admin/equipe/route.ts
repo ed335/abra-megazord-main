@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminInfo } from '@/lib/admin-auth';
-import { temPermissao } from '@/lib/permissions';
+import { temPermissao, DESCRICAO_CARGOS } from '@/lib/permissions';
 import type { CargoAdmin, PermissaoAdmin } from '@/lib/permissions';
+import { sendEmail, getAdminInviteEmailHtml } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,11 +90,13 @@ export async function POST(request: NextRequest) {
       data: { role: 'ADMIN' },
     });
 
+    const cargoFinal = cargo || 'ATENDENTE';
+    
     const novoAdmin = await prisma.admin.create({
       data: {
         usuarioId: usuario.id,
         nome: nome || null,
-        cargo: cargo || 'ATENDENTE',
+        cargo: cargoFinal,
         setor: setor || null,
         notas: notas || null,
         permissoesCustom: permissoesCustom || [],
@@ -111,7 +114,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(novoAdmin, { status: 201 });
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL 
+      ?? (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'http://localhost:5000');
+    const loginUrl = `${baseUrl}/admin/login`;
+    const cargoNome = DESCRICAO_CARGOS[cargoFinal as CargoAdmin]?.nome || cargoFinal;
+
+    let emailEnviado = false;
+    try {
+      emailEnviado = await sendEmail({
+        to: usuario.email,
+        subject: 'Você foi adicionado à equipe administrativa - ABRACANM',
+        html: getAdminInviteEmailHtml(usuario.nome, cargoNome, loginUrl),
+      });
+    } catch (emailError) {
+      console.error('Erro ao enviar email de convite:', emailError);
+      emailEnviado = false;
+    }
+
+    return NextResponse.json({ ...novoAdmin, emailEnviado }, { status: 201 });
   } catch (error) {
     console.error('Erro ao adicionar membro:', error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

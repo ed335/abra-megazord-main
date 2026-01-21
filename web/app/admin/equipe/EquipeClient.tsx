@@ -14,11 +14,16 @@ import {
   ChevronDown,
   UserCheck,
   UserX,
-  Clock
+  Clock,
+  Mail,
+  AlertCircle,
+  Info,
+  UserPlus,
+  Copy
 } from 'lucide-react';
-import { DESCRICAO_CARGOS, DESCRICAO_PERMISSOES, PERMISSOES_POR_CARGO, obterPermissoesAgrupadas, temPermissao } from '@/lib/permissions';
+import { DESCRICAO_CARGOS, PERMISSOES_POR_CARGO, obterPermissoesAgrupadas } from '@/lib/permissions';
 import type { CargoAdmin, PermissaoAdmin } from '@/lib/permissions';
-import { fetchWithAdminAuth, getAdminToken } from '@/lib/admin-auth-client';
+import { fetchWithAdminAuth } from '@/lib/admin-auth-client';
 
 interface MembroEquipe {
   id: string;
@@ -42,6 +47,7 @@ interface MembroEquipe {
 export default function EquipeClient() {
   const [membros, setMembros] = useState<MembroEquipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState<'todos' | 'ativos' | 'inativos'>('todos');
   const [filtroCargo, setFiltroCargo] = useState<CargoAdmin | 'todos'>('todos');
@@ -55,10 +61,12 @@ export default function EquipeClient() {
 
   const fetchMembros = async () => {
     try {
+      setError('');
       const data = await fetchWithAdminAuth<MembroEquipe[]>('/api/admin/equipe');
       setMembros(data);
-    } catch (error) {
-      console.error('Erro ao carregar equipe:', error);
+    } catch (err: any) {
+      console.error('Erro ao carregar equipe:', err);
+      setError(err.message || 'Erro ao carregar membros da equipe');
     } finally {
       setLoading(false);
     }
@@ -69,8 +77,8 @@ export default function EquipeClient() {
       await fetchWithAdminAuth(`/api/admin/equipe/${id}`, { method: 'DELETE' });
       setMembros(membros.filter(m => m.id !== id));
       setDeleteConfirm(null);
-    } catch (error) {
-      console.error('Erro ao remover membro:', error);
+    } catch (error: any) {
+      alert(error.message || 'Erro ao remover membro');
     }
   };
 
@@ -83,8 +91,8 @@ export default function EquipeClient() {
       setMembros(membros.map(m => 
         m.id === membro.id ? { ...m, ativo: !m.ativo } : m
       ));
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error);
+    } catch (error: any) {
+      alert(error.message || 'Erro ao atualizar status');
     }
   };
 
@@ -129,9 +137,9 @@ export default function EquipeClient() {
             <Users className="w-6 h-6 text-abracanm-green" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Equipe</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Gerenciamento de Equipe</h1>
             <p className="text-sm text-gray-500">
-              {membros.length} membro{membros.length !== 1 ? 's' : ''} cadastrado{membros.length !== 1 ? 's' : ''}
+              {membros.length} membro{membros.length !== 1 ? 's' : ''} na equipe administrativa
             </p>
           </div>
         </div>
@@ -142,10 +150,43 @@ export default function EquipeClient() {
           }}
           className="flex items-center gap-2 px-4 py-2 bg-abracanm-green text-white rounded-lg hover:bg-abracanm-green-dark transition-colors"
         >
-          <Plus className="w-4 h-4" />
+          <UserPlus className="w-4 h-4" />
           Adicionar Membro
         </button>
       </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-blue-900">Como adicionar um novo administrador</h3>
+            <ul className="mt-2 text-sm text-blue-800 space-y-1">
+              <li>1. O usuário deve primeiro se cadastrar no sistema como associado</li>
+              <li>2. Clique em "Adicionar Membro" e informe o email do usuário</li>
+              <li>3. Selecione o cargo e permissões desejadas</li>
+              <li>4. O usuário poderá acessar o painel admin com seu login existente</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <div>
+              <h3 className="font-medium text-red-900">Erro</h3>
+              <p className="text-sm text-red-700">{error}</p>
+              <button 
+                onClick={fetchMembros}
+                className="mt-2 text-sm text-red-600 underline hover:no-underline"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
         <div className="p-4 border-b border-gray-100">
@@ -189,9 +230,23 @@ export default function EquipeClient() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-abracanm-green"></div>
           </div>
         ) : filteredMembros.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhum membro encontrado</p>
+          <div className="text-center py-12">
+            <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum membro encontrado</h3>
+            <p className="text-gray-500 mb-4">
+              {membros.length === 0 
+                ? 'Comece adicionando o primeiro membro da equipe administrativa.'
+                : 'Nenhum membro corresponde aos filtros selecionados.'}
+            </p>
+            {membros.length === 0 && (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-abracanm-green text-white rounded-lg hover:bg-abracanm-green-dark"
+              >
+                <UserPlus className="w-4 h-4" />
+                Adicionar Primeiro Membro
+              </button>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -214,7 +269,10 @@ export default function EquipeClient() {
                         <p className="font-medium text-gray-900">
                           {membro.nome || membro.usuario.nome}
                         </p>
-                        <p className="text-sm text-gray-500">{membro.usuario.email}</p>
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <Mail className="w-3 h-3" />
+                          {membro.usuario.email}
+                        </p>
                         {membro.setor && (
                           <p className="text-xs text-gray-400">{membro.setor}</p>
                         )}
@@ -311,6 +369,35 @@ export default function EquipeClient() {
         )}
       </div>
 
+      <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Shield className="w-5 h-5 text-abracanm-green" />
+          Descrição dos Cargos
+        </h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(DESCRICAO_CARGOS).map(([key, value]) => (
+            <div key={key} className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${cargoBadgeColors[key as CargoAdmin]}`}>
+                  {value.nome}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">{value.descricao}</p>
+              <details className="mt-2">
+                <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+                  Ver permissões ({PERMISSOES_POR_CARGO[key as CargoAdmin]?.length || 0})
+                </summary>
+                <ul className="mt-2 text-xs text-gray-500 space-y-0.5">
+                  {PERMISSOES_POR_CARGO[key as CargoAdmin]?.map(p => (
+                    <li key={p}>• {p.replace(/_/g, ' ')}</li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <AnimatePresence>
         {modalOpen && (
           <MembroModal
@@ -340,7 +427,10 @@ interface MembroModalProps {
 function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPermissoes, setShowPermissoes] = useState(false);
+  const [step, setStep] = useState<'form' | 'success'>('form');
+  const [createdMembro, setCreatedMembro] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -366,12 +456,17 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
       
       const method = membro ? 'PUT' : 'POST';
       
-      await fetchWithAdminAuth(url, {
+      const result = await fetchWithAdminAuth(url, {
         method,
         body: JSON.stringify(formData),
       });
 
-      onSave();
+      if (!membro) {
+        setCreatedMembro(result);
+        setStep('success');
+      } else {
+        onSave();
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -390,6 +485,95 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
     }));
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  if (step === 'success' && createdMembro) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="bg-white rounded-xl shadow-xl max-w-md w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Membro Adicionado com Sucesso!
+            </h2>
+            <p className="text-gray-600 mb-4">
+              O usuário agora tem acesso ao painel administrativo.
+            </p>
+
+            {createdMembro.emailEnviado ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+                <Mail className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-green-800">Email de convite enviado com sucesso!</span>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                <span className="text-sm text-yellow-800">Email não enviado. Compartilhe as instruções manualmente.</span>
+              </div>
+            )}
+
+            <div className="bg-gray-50 rounded-lg p-4 text-left mb-6">
+              <h3 className="font-medium text-gray-900 mb-3">Instruções para o novo administrador:</h3>
+              <ol className="text-sm text-gray-600 space-y-2">
+                <li className="flex gap-2">
+                  <span className="font-medium text-abracanm-green">1.</span>
+                  Acessar: <code className="bg-gray-200 px-1 rounded">/admin/login</code>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-medium text-abracanm-green">2.</span>
+                  Usar o mesmo email e senha do cadastro de associado
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-medium text-abracanm-green">3.</span>
+                  Cargo: <span className="font-medium">{DESCRICAO_CARGOS[createdMembro.cargo]?.nome}</span>
+                </li>
+              </ol>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  copyToClipboard(`Você foi adicionado como ${DESCRICAO_CARGOS[createdMembro.cargo]?.nome} na ABRACANM. Acesse o painel admin em /admin/login usando seu email e senha de associado.`);
+                  setSuccess('Instruções copiadas!');
+                  setTimeout(() => setSuccess(''), 2000);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <Copy className="w-4 h-4" />
+                Copiar Instruções
+              </button>
+              <button
+                onClick={onSave}
+                className="flex-1 px-4 py-2 bg-abracanm-green text-white rounded-lg hover:bg-abracanm-green-dark"
+              >
+                Concluir
+              </button>
+            </div>
+            {success && (
+              <p className="text-sm text-green-600 mt-2">{success}</p>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -407,9 +591,16 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
       >
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {membro ? 'Editar Membro' : 'Adicionar Membro'}
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {membro ? 'Editar Membro' : 'Adicionar Novo Membro'}
+              </h2>
+              {!membro && (
+                <p className="text-sm text-gray-500 mt-1">
+                  O usuário deve estar cadastrado como associado no sistema
+                </p>
+              )}
+            </div>
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -421,26 +612,33 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Erro</p>
+                <p>{error}</p>
+              </div>
             </div>
           )}
 
           {!membro && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email do usuário
+                Email do usuário *
               </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-abracanm-green/20 focus:border-abracanm-green"
-                placeholder="email@exemplo.com"
-                required={!membro}
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-abracanm-green/20 focus:border-abracanm-green"
+                  placeholder="email@exemplo.com"
+                  required={!membro}
+                />
+              </div>
               <p className="text-xs text-gray-500 mt-1">
-                O usuário deve estar cadastrado no sistema
+                Digite o email de um usuário já cadastrado no sistema como associado
               </p>
             </div>
           )}
@@ -448,19 +646,19 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nome de exibição (opcional)
+                Nome de exibição
               </label>
               <input
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-abracanm-green/20 focus:border-abracanm-green"
-                placeholder="Nome para exibição"
+                placeholder="Nome para exibição (opcional)"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Setor (opcional)
+                Setor/Departamento
               </label>
               <input
                 type="text"
@@ -474,7 +672,7 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cargo
+              Cargo *
             </label>
             <select
               value={formData.cargo}
@@ -501,7 +699,7 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
               className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-abracanm-green"
             >
               <ChevronDown className={`w-4 h-4 transition-transform ${showPermissoes ? 'rotate-180' : ''}`} />
-              Permissões personalizadas
+              Permissões personalizadas (opcional)
             </button>
             
             <AnimatePresence>
@@ -512,6 +710,9 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
                   exit={{ height: 0, opacity: 0 }}
                   className="mt-4 space-y-4 overflow-hidden"
                 >
+                  <p className="text-xs text-gray-500">
+                    Marque permissões extras além das padrão do cargo. Permissões marcadas em cinza já vêm do cargo.
+                  </p>
                   {Object.entries(permissoesAgrupadas).map(([categoria, permissoes]) => (
                     <div key={categoria}>
                       <h4 className="text-xs font-medium text-gray-500 uppercase mb-2">{categoria}</h4>
@@ -558,14 +759,14 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notas (opcional)
+              Notas internas
             </label>
             <textarea
               value={formData.notas}
               onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-abracanm-green/20 focus:border-abracanm-green resize-none"
-              placeholder="Anotações sobre este membro..."
+              placeholder="Anotações sobre este membro (visível apenas para admins)..."
             />
           </div>
 
@@ -580,9 +781,18 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-abracanm-green text-white rounded-lg hover:bg-abracanm-green-dark transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-abracanm-green text-white rounded-lg hover:bg-abracanm-green-dark transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? 'Salvando...' : membro ? 'Salvar Alterações' : 'Adicionar Membro'}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  {membro ? 'Salvar Alterações' : 'Adicionar Membro'}
+                </>
+              )}
             </button>
           </div>
         </form>
