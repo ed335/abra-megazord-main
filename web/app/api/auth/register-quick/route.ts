@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getJWTSecret } from '@/lib/jwt';
+import { sendWelcomeMessage } from '@/lib/evolution';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
@@ -69,6 +70,15 @@ export async function POST(request: NextRequest) {
       getJWTSecret(),
       { expiresIn: '7d' }
     );
+
+    // Enviar mensagem de boas-vindas via WhatsApp
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL 
+      ?? (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'http://localhost:5000');
+    const preAnamneseLink = `${baseUrl}/pre-anamnese`;
+    
+    sendWelcomeMessage(whatsapp, nome, preAnamneseLink).catch(err => {
+      console.error('Erro ao enviar WhatsApp de boas-vindas:', err);
+    });
 
     return NextResponse.json({
       message: 'Cadastro realizado com sucesso',
