@@ -169,7 +169,7 @@ export default function EquipeClient() {
             <h3 className="font-medium text-blue-900">Como adicionar um novo administrador</h3>
             <ul className="mt-2 text-sm text-blue-800 space-y-1">
               <li>1. O usuário deve primeiro se cadastrar no sistema como associado</li>
-              <li>2. Clique em "Adicionar Membro" e informe o email do usuário</li>
+              <li>2. Clique em &quot;Adicionar Membro&quot; e informe o email do usuário</li>
               <li>3. Selecione o cargo e permissões desejadas</li>
               <li>4. O usuário poderá acessar o painel admin com seu login existente</li>
             </ul>
@@ -548,7 +548,7 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
                 </li>
                 <li className="flex gap-2">
                   <span className="font-medium text-abracanm-green">3.</span>
-                  Cargo: <span className="font-medium">{DESCRICAO_CARGOS[createdMembro.cargo]?.nome}</span>
+                  Cargo: <span className="font-medium">{DESCRICAO_CARGOS[createdMembro.cargo as CargoAdmin]?.nome}</span>
                 </li>
               </ol>
             </div>
@@ -556,7 +556,7 @@ function MembroModal({ membro, onClose, onSave }: MembroModalProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  copyToClipboard(`Você foi adicionado como ${DESCRICAO_CARGOS[createdMembro.cargo]?.nome} na ABRACANM. Acesse o painel admin em /admin/login usando seu email e senha de associado.`);
+                  copyToClipboard(`Você foi adicionado como ${DESCRICAO_CARGOS[createdMembro.cargo as CargoAdmin]?.nome} na ABRACANM. Acesse o painel admin em /admin/login usando seu email e senha de associado.`);
                   setSuccess('Instruções copiadas!');
                   setTimeout(() => setSuccess(''), 2000);
                 }}

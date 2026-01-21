@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const adminId = decoded.id as string;
+    const adminId = decoded.sub;
     const body = await request.json();
     const { destinatarios, mensagem, templateId, filtrosUsados } = body;
 

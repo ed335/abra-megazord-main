@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       await tx.admin.create({
         data: {
           usuarioId: user.id,
-          permissoes: ['*'],
+          cargo: 'SUPER_ADMIN',
           notas: `Primeiro admin criado em ${new Date().toISOString()}`,
         },
       });

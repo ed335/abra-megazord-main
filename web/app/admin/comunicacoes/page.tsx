@@ -144,7 +144,7 @@ export default function AdminComunicacoesPage() {
   const fetchData = useCallback(async () => {
     try {
       const token = getAdminToken();
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
       
       const [assocRes, templatesRes, historicoRes, statsRes] = await Promise.all([
         fetch('/api/admin/comunicacoes/associados', { headers }),
