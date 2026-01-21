@@ -82,6 +82,8 @@ export async function GET(request: NextRequest) {
 
     let nome = '';
     let cpf = '';
+    let matricula = '';
+    let validade = '';
     let planoAtivo = null;
     let assinaturaAtiva = null;
     const hasPreAnamnese = !!usuario.paciente?.preAnamnese;
@@ -90,6 +92,15 @@ export async function GET(request: NextRequest) {
     if (usuario.paciente) {
       nome = usuario.paciente.nome;
       cpf = usuario.paciente.cpf || '';
+      
+      // Generate matricula from paciente ID
+      matricula = `ABR-${usuario.paciente.id.slice(0, 8).toUpperCase()}`;
+      
+      // Calculate validade: 12 months from registration date
+      const dataCadastro = usuario.paciente.criadoEm;
+      const dataValidade = new Date(dataCadastro);
+      dataValidade.setMonth(dataValidade.getMonth() + 12);
+      validade = dataValidade.toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' });
       
       const assinatura = usuario.paciente.assinaturas?.[0];
       if (assinatura) {
@@ -117,6 +128,10 @@ export async function GET(request: NextRequest) {
       role: usuario.role,
       nome,
       cpf,
+      matricula,
+      validade,
+      plano: planoAtivo?.nome || 'Associado',
+      status: assinaturaAtiva ? 'ativo' : 'pendente',
       onboardingCompleto,
       hasPreAnamnese,
       paciente: usuario.paciente ? {
