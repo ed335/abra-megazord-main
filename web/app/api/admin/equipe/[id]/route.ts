@@ -32,9 +32,13 @@ export async function GET(
         usuario: {
           select: {
             id: true,
-            nome: true,
             email: true,
-            cpf: true,
+            paciente: {
+              select: {
+                nome: true,
+                cpf: true,
+              },
+            },
           },
         },
       },

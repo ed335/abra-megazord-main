@@ -38,10 +38,17 @@ interface MembroEquipe {
   ultimoAcesso: string | null;
   criadoEm: string;
   usuario: {
-    nome: string;
+    id: string;
     email: string;
-    cpf: string;
+    paciente?: {
+      nome: string;
+      cpf: string | null;
+    } | null;
   };
+}
+
+function getNomeMembro(membro: MembroEquipe): string {
+  return membro.nome || membro.usuario.paciente?.nome || 'Sem nome';
 }
 
 export default function EquipeClient() {
@@ -98,7 +105,7 @@ export default function EquipeClient() {
 
   const filteredMembros = membros.filter(membro => {
     const matchSearch = 
-      membro.usuario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getNomeMembro(membro).toLowerCase().includes(searchTerm.toLowerCase()) ||
       membro.usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (membro.nome && membro.nome.toLowerCase().includes(searchTerm.toLowerCase()));
     
@@ -267,7 +274,7 @@ export default function EquipeClient() {
                     <td className="px-4 py-3">
                       <div>
                         <p className="font-medium text-gray-900">
-                          {membro.nome || membro.usuario.nome}
+                          {getNomeMembro(membro)}
                         </p>
                         <p className="text-sm text-gray-500 flex items-center gap-1">
                           <Mail className="w-3 h-3" />

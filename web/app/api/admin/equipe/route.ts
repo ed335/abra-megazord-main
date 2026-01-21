@@ -29,9 +29,13 @@ export async function GET(request: NextRequest) {
         usuario: {
           select: {
             id: true,
-            nome: true,
             email: true,
-            cpf: true,
+            paciente: {
+              select: {
+                nome: true,
+                cpf: true,
+              },
+            },
           },
         },
       },
@@ -92,10 +96,15 @@ export async function POST(request: NextRequest) {
 
     const cargoFinal = cargo || 'ATENDENTE';
     
+    const paciente = await prisma.paciente.findUnique({
+      where: { usuarioId: usuario.id },
+      select: { nome: true },
+    });
+
     const novoAdmin = await prisma.admin.create({
       data: {
         usuarioId: usuario.id,
-        nome: nome || null,
+        nome: nome || paciente?.nome || null,
         cargo: cargoFinal,
         setor: setor || null,
         notas: notas || null,
@@ -106,9 +115,13 @@ export async function POST(request: NextRequest) {
         usuario: {
           select: {
             id: true,
-            nome: true,
             email: true,
-            cpf: true,
+            paciente: {
+              select: {
+                nome: true,
+                cpf: true,
+              },
+            },
           },
         },
       },
@@ -119,12 +132,13 @@ export async function POST(request: NextRequest) {
     const loginUrl = `${baseUrl}/admin/login`;
     const cargoNome = DESCRICAO_CARGOS[cargoFinal as CargoAdmin]?.nome || cargoFinal;
 
+    const nomeParaEmail = novoAdmin.nome || paciente?.nome || 'Administrador';
     let emailEnviado = false;
     try {
       emailEnviado = await sendEmail({
         to: usuario.email,
         subject: 'Você foi adicionado à equipe administrativa - ABRACANM',
-        html: getAdminInviteEmailHtml(usuario.nome, cargoNome, loginUrl),
+        html: getAdminInviteEmailHtml(nomeParaEmail, cargoNome, loginUrl),
       });
     } catch (emailError) {
       console.error('Erro ao enviar email de convite:', emailError);
