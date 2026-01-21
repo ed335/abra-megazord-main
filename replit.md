@@ -1,11 +1,26 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
-## Recent Changes (2026-01-15)
+## Recent Changes (2026-01-21)
+- **Role-Based Access Control (RBAC) System:**
+  - 6 admin roles: SUPER_ADMIN, ADMINISTRADOR, GERENTE, ATENDENTE, FINANCEIRO, MARKETING
+  - 18 granular permissions across categories (Associados, Médicos, Agendamentos, Financeiro, Comunicações, Equipe, Sistema)
+  - Default permissions per role + custom permission overrides
+  - Helper library at `web/lib/permissions.ts` with `temPermissao()` function
+- **Team Management Page (`/admin/equipe`):**
+  - Full CRUD for team members
+  - Filter by status (active/inactive) and role
+  - Assign roles and custom permissions
+  - View last access and creation date
+- **Membership Card (Carteirinha) Improvements:**
+  - Auto-calculated validity: 12 months from registration date
+  - Auto-generated member ID in format ABR-XXXXXXXX
+- **Communications Center Fixes:**
+  - Added admin authentication to API routes
+  - Database-based rate limiting (100 msg/hour) for multi-instance support
+
+## Previous Changes (2026-01-15)
 - **Marketplace Integration with Dashboard:**
-  - "Agendar" button in dashboard now shows selection dialog:
-    - "Consulta do Plano" → `/agendar-consulta` (for subscribers)
-    - "Consulta Avulsa" → `/marketplace` (choose doctor)
-  - Works for both subscribers and non-subscribers
+  - "Agendar" button in dashboard now shows selection dialog
 - **Doctor Marketplace:** `/marketplace` with card-based UI, search, specialty filters
 - **Doctor Profile Settings:** `/medico/configuracoes` for bio, pricing, visibility
 - **Test Plans Added:** 4 subscription plans (Básico, Premium, Trimestral, Anual VIP)
