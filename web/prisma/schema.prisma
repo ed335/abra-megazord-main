@@ -18,6 +18,51 @@ enum Role {
   ADMIN
 }
 
+enum CargoAdmin {
+  SUPER_ADMIN    // Acesso total ao sistema
+  ADMINISTRADOR  // Gerencia maioria das funções
+  GERENTE        // Gerencia equipe e operações
+  ATENDENTE      // Suporte e atendimento ao cliente
+  FINANCEIRO     // Acesso a pagamentos e finanças
+  MARKETING      // Comunicações e marketing
+}
+
+enum PermissaoAdmin {
+  // Associados
+  VER_ASSOCIADOS
+  EDITAR_ASSOCIADOS
+  DELETAR_ASSOCIADOS
+  
+  // Médicos
+  VER_MEDICOS
+  APROVAR_MEDICOS
+  EDITAR_MEDICOS
+  
+  // Agendamentos
+  VER_AGENDAMENTOS
+  GERENCIAR_AGENDAMENTOS
+  
+  // Pagamentos
+  VER_PAGAMENTOS
+  GERENCIAR_PAGAMENTOS
+  
+  // Planos
+  VER_PLANOS
+  GERENCIAR_PLANOS
+  
+  // Comunicações
+  ENVIAR_WHATSAPP
+  GERENCIAR_TEMPLATES
+  
+  // Equipe
+  VER_EQUIPE
+  GERENCIAR_EQUIPE
+  
+  // Sistema
+  VER_LOGS
+  CONFIGURACOES_SISTEMA
+}
+
 enum StatusPrescricao {
   ATIVA
   VENCIDA
@@ -274,8 +319,20 @@ model Admin {
   usuarioId       String    @unique
   usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   
-  permissoes      String[] @default([]) // JSON array
+  // Sistema de cargos e permissões
+  cargo           CargoAdmin @default(ATENDENTE)
+  permissoes      PermissaoAdmin[] @default([])
+  permissoesCustom String[]  @default([]) // Permissões extras além do cargo
+  
+  // Informações adicionais
+  nome            String?   // Nome para exibição (pode ser diferente do usuário)
+  setor           String?   // Setor/departamento
   notas           String?
+  ativo           Boolean   @default(true)
+  
+  // Controle de acesso
+  ultimoAcesso    DateTime?
+  criadoPorId     String?   // ID do admin que criou este membro
   
   criadoEm        DateTime  @default(now())
   atualizadoEm    DateTime  @updatedAt

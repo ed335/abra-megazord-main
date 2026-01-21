@@ -19,7 +19,8 @@ import {
   Video,
   Home,
   Kanban,
-  Stethoscope
+  Stethoscope,
+  UserCog
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAdminToken } from '@/lib/admin-auth-client';
@@ -41,9 +42,9 @@ const baseNavItems: NavItem[] = [
   { href: '/admin/pagamentos', label: 'Pagamentos', icon: CreditCard },
   { href: '/admin/planos', label: 'Planos', icon: Package },
   { href: '/medico/consultas', label: 'Teleconsultas', icon: Video },
-  { href: '/admin/whatsapp', label: 'WhatsApp', icon: MessageCircle },
+  { href: '/admin/comunicacoes', label: 'Comunicações', icon: MessageCircle },
+  { href: '/admin/equipe', label: 'Equipe', icon: UserCog },
   { href: '/admin/logs', label: 'Logs', icon: ClipboardList },
-  { href: '/admin/admins', label: 'Administradores', icon: Shield },
 ];
 
 interface AdminSidebarProps {

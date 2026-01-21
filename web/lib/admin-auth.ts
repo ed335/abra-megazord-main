@@ -18,6 +18,17 @@ export type AdminTokenPayload = {
   email: string;
 };
 
+export type AdminInfo = {
+  id: string;
+  usuarioId: string;
+  cargo: string;
+  permissoes: string[];
+  permissoesCustom: string[];
+  nome: string | null;
+  ativo: boolean;
+  email: string;
+};
+
 export async function verifyAdminToken(request: NextRequest): Promise<AdminTokenPayload | null> {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -52,6 +63,55 @@ export async function verifyAdminToken(request: NextRequest): Promise<AdminToken
     }
     
     return decoded;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAdminInfo(request: NextRequest): Promise<AdminInfo | null> {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const jwtSecret = getJWTSecret();
+    const decoded = jsonwebtoken.verify(token, jwtSecret) as AdminTokenPayload;
+    
+    if (decoded.role !== 'ADMIN') {
+      return null;
+    }
+
+    const admin = await prisma.admin.findFirst({
+      where: { usuarioId: decoded.sub },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            email: true,
+            ativo: true,
+            role: true,
+          }
+        }
+      }
+    });
+
+    if (!admin || !admin.usuario.ativo || !admin.ativo) {
+      return null;
+    }
+    
+    return {
+      id: admin.id,
+      usuarioId: admin.usuarioId,
+      cargo: admin.cargo,
+      permissoes: admin.permissoes as string[],
+      permissoesCustom: admin.permissoesCustom as string[],
+      nome: admin.nome,
+      ativo: admin.ativo,
+      email: admin.usuario.email,
+    };
   } catch {
     return null;
   }
