@@ -282,6 +282,7 @@ model Admin {
   
   mensagensWhatsApp MensagemWhatsApp[]
   lotesWhatsApp     LoteMensagemWhatsApp[]
+  templates         TemplateMensagem[]
 }
 
 enum StatusCadastro {
@@ -763,6 +764,28 @@ enum StatusMensagemWhatsApp {
   ENVIADA
   FALHA
   PENDENTE
+}
+
+model TemplateMensagem {
+  id              String    @id @default(cuid())
+  
+  nome            String    @unique
+  descricao       String?
+  categoria       String    @default("GERAL") // GERAL, BOAS_VINDAS, AGENDAMENTO, PAGAMENTO, PROMOCAO
+  
+  conteudo        String    @db.Text
+  variaveis       String[]  // Lista de variáveis disponíveis: {{nome}}, {{plano}}, etc
+  
+  ativo           Boolean   @default(true)
+  
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  
+  adminId         String?
+  admin           Admin?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  
+  @@index([categoria])
+  @@index([ativo])
 }
 
 model MensagemWhatsApp {

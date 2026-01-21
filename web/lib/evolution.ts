@@ -2,14 +2,58 @@ const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL;
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY;
 const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE;
 
+const MIN_DELAY_MS = 3000;
+const MAX_DELAY_MS = 8000;
+const BULK_MIN_DELAY_MS = 5000;
+const BULK_MAX_DELAY_MS = 15000;
+const MAX_MESSAGES_PER_HOUR = 100;
+
+let messagesSentThisHour = 0;
+let hourResetTime = Date.now() + 3600000;
+
 interface SendMessageOptions {
   phone: string;
   message: string;
 }
 
+interface BulkMessageResult {
+  phone: string;
+  success: boolean;
+  error?: string;
+}
+
+function randomDelay(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function checkAndResetHourlyLimit(): boolean {
+  if (Date.now() > hourResetTime) {
+    messagesSentThisHour = 0;
+    hourResetTime = Date.now() + 3600000;
+  }
+  return messagesSentThisHour < MAX_MESSAGES_PER_HOUR;
+}
+
+function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
+  let result = template;
+  for (const [key, value] of Object.entries(variables)) {
+    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+  }
+  return result;
+}
+
 export async function sendWhatsAppMessage({ phone, message }: SendMessageOptions): Promise<boolean> {
   if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
     console.warn('Evolution API não configurada');
+    return false;
+  }
+
+  if (!checkAndResetHourlyLimit()) {
+    console.warn('Limite de mensagens por hora atingido');
     return false;
   }
 
@@ -38,11 +82,85 @@ export async function sendWhatsAppMessage({ phone, message }: SendMessageOptions
       return false;
     }
 
+    messagesSentThisHour++;
     return true;
   } catch (error) {
     console.error('Erro ao enviar WhatsApp:', error);
     return false;
   }
+}
+
+export async function sendWhatsAppMessageWithDelay({ phone, message }: SendMessageOptions): Promise<boolean> {
+  const delay = randomDelay(MIN_DELAY_MS, MAX_DELAY_MS);
+  await sleep(delay);
+  return sendWhatsAppMessage({ phone, message });
+}
+
+export async function sendBulkWhatsAppMessages(
+  messages: SendMessageOptions[],
+  onProgress?: (current: number, total: number, result: BulkMessageResult) => void
+): Promise<BulkMessageResult[]> {
+  const results: BulkMessageResult[] = [];
+  
+  for (let i = 0; i < messages.length; i++) {
+    const { phone, message } = messages[i];
+    
+    if (!checkAndResetHourlyLimit()) {
+      console.warn(`Limite atingido. Pausando envio em ${i}/${messages.length}`);
+      results.push({ phone, success: false, error: 'Limite de mensagens por hora atingido' });
+      continue;
+    }
+
+    try {
+      const success = await sendWhatsAppMessage({ phone, message });
+      const result = { phone, success, error: success ? undefined : 'Falha no envio' };
+      results.push(result);
+      
+      if (onProgress) {
+        onProgress(i + 1, messages.length, result);
+      }
+
+      if (i < messages.length - 1) {
+        const delay = randomDelay(BULK_MIN_DELAY_MS, BULK_MAX_DELAY_MS);
+        console.log(`Aguardando ${delay}ms antes do próximo envio...`);
+        await sleep(delay);
+      }
+    } catch (error) {
+      results.push({ phone, success: false, error: String(error) });
+    }
+  }
+
+  return results;
+}
+
+export async function sendTemplateMessage(
+  phone: string,
+  template: string,
+  variables: Record<string, string>
+): Promise<boolean> {
+  const message = replaceTemplateVariables(template, variables);
+  return sendWhatsAppMessageWithDelay({ phone, message });
+}
+
+export async function sendBulkTemplateMessages(
+  recipients: Array<{ phone: string; variables: Record<string, string> }>,
+  template: string,
+  onProgress?: (current: number, total: number, result: BulkMessageResult) => void
+): Promise<BulkMessageResult[]> {
+  const messages = recipients.map(r => ({
+    phone: r.phone,
+    message: replaceTemplateVariables(template, r.variables),
+  }));
+  
+  return sendBulkWhatsAppMessages(messages, onProgress);
+}
+
+export function getMessageStats(): { sent: number; limit: number; resetIn: number } {
+  return {
+    sent: messagesSentThisHour,
+    limit: MAX_MESSAGES_PER_HOUR,
+    resetIn: Math.max(0, hourResetTime - Date.now()),
+  };
 }
 
 export async function sendAppointmentConfirmation(
@@ -81,7 +199,7 @@ Dúvidas? Responda esta mensagem.
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendPaymentConfirmation(
@@ -114,7 +232,7 @@ No dia da consulta, você receberá o link do Google Meet por aqui.
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendMeetLink(
@@ -139,7 +257,7 @@ Dicas:
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendRegistrationApproval(
@@ -167,7 +285,7 @@ Dúvidas? Responda esta mensagem ou entre em contato pelo email contato@abracanm
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_
 _Acolhendo você na sua jornada de saúde_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendWelcomeMessage(
@@ -199,7 +317,7 @@ ${preAnamneseLink}${codigoTexto}
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendPreAnamneseCompleted(
@@ -224,7 +342,7 @@ Nossos médicos analisarão suas informações para oferecer o melhor tratamento
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendReferralNotification(
@@ -249,7 +367,7 @@ Continue indicando amigos e desbloqueie mais recompensas!
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
 
 export async function sendLevelUpNotification(
@@ -274,5 +392,5 @@ Continue indicando amigos e suba ainda mais!
 
 _ABRACANM - Associação Brasileira de Cannabis Medicinal_`;
 
-  return sendWhatsAppMessage({ phone, message });
+  return sendWhatsAppMessageWithDelay({ phone, message });
 }
