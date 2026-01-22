@@ -1,7 +1,7 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
 ## Recent Changes (2026-01-22)
-- **Comprehensive Onboarding System (Phases 1-7):**
+- **Comprehensive Onboarding System (Phases 1-10 COMPLETE):**
   - Extended Prisma schema with PerfilOnboarding, StatusOnboarding, TipoDocumento, StatusDocumento enums
   - New models: Documento (with versioning), DocumentoVersao, Carteirinha, AuditoriaDocumento, Lembrete
   - 3 user profiles: INICIANTE (ID only), PRESCRICAO (ID + prescription), ANVISA (ID + prescription + ANVISA auth)
@@ -16,10 +16,22 @@
   - `/api/onboarding` (GET/PUT), `/api/onboarding/documentos` (GET/POST)
   - `/api/carteirinha` (GET/POST), `/api/carteirinha/verificar/[token]` (GET)
   - `/api/admin/documentos`, `/api/admin/documentos/[id]/aprovar`, `/api/admin/documentos/[id]/rejeitar`
+  - `/api/lembretes` (GET user reminders), `/api/lembretes/processar` (POST admin batch process)
+- **Reminder System (Phase 8):**
+  - Automated expiry alerts: prescriptions (30 days), ANVISA (60 days), contributions (7 days)
+  - WhatsApp notifications via Evolution API with retry limiting (max 3 attempts)
+  - Document rejection triggers automatic reminder to user
+  - Helper library: `web/lib/lembretes.ts`
+- **Migration Script (Phase 9):**
+  - `web/scripts/migrar-usuarios-onboarding.ts` for backfilling existing users
+  - Auto-classifies profile based on existing documents
+  - Generates digital cards for active members
+  - Run with: `npx tsx scripts/migrar-usuarios-onboarding.ts`
 - **Security Improvements:**
   - Removed JWT_SECRET fallback (now throws error if not configured)
   - Document approval sets revisadoPorId/revisadoEm for audit trail
   - Profile-based document requirement validation before activating users
+  - User activation requires both approved documents AND active assinatura
 - **Helper Library:** `web/lib/onboarding.ts` with calcularProximoPasso(), gerarNumeroAssociado(), gerarQRToken()
 
 ## Previous Changes (2026-01-21)
