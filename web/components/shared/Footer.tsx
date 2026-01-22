@@ -36,7 +36,7 @@ export default function Footer() {
               <Link href="/" className="hover:text-off-white">Home</Link>
               <Link href="/#sobre" className="hover:text-off-white">Sobre</Link>
               <Link href="/#como-funciona" className="hover:text-off-white">Como Funciona</Link>
-              <Link href="/cadastro" className="hover:text-off-white">Associe-se</Link>
+              <Link href="/associar" className="hover:text-off-white">Associe-se</Link>
               <Link href="/contato" className="hover:text-off-white">Contato</Link>
               <Link href="/doacoes" className="hover:text-off-white font-medium text-green-400">💚 Doe</Link>
               <Link href="/politica-privacidade" className="hover:text-off-white">Política de Privacidade</Link>

@@ -42,7 +42,7 @@ function FooterSection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/cadastro">
+            <Link href="/associar">
               <Button className="bg-[#3FA174] hover:bg-[#359966] text-white px-8 py-6 text-base font-semibold rounded-full shadow-lg shadow-[#3FA174]/30 transition-all hover:shadow-xl hover:shadow-[#3FA174]/40 hover:scale-105">
                 Agendar consulta
                 <ArrowRight className="w-5 h-5 ml-2" />

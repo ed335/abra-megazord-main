@@ -222,7 +222,7 @@ export default function Header() {
                   </Link>
                   <Button 
                     size="sm" 
-                    onClick={() => router.push('/cadastro')} 
+                    onClick={() => router.push('/associar')} 
                     className="bg-[#3FA174] hover:bg-[#359966] text-white rounded-full px-5 shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     Associe-se
@@ -311,7 +311,7 @@ export default function Header() {
                           Entrar
                         </Button>
                       </Link>
-                      <Link href="/cadastro" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href="/associar" onClick={() => setMobileMenuOpen(false)}>
                         <Button className="w-full rounded-xl h-12 bg-[#3FA174] hover:bg-[#359966]">
                           Associe-se
                         </Button>

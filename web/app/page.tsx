@@ -269,7 +269,7 @@ export default function Home() {
                 asChild
                 className="bg-[#3FA174] hover:bg-[#359966] text-white px-6 py-5 text-sm font-medium rounded-full"
               >
-                <Link href="/cadastro">
+                <Link href="/associar">
                   Agendar consulta
                 </Link>
               </Button>
@@ -336,7 +336,7 @@ export default function Home() {
             {conditions.map((condition) => (
               <Link
                 key={condition}
-                href={`/cadastro?condicao=${encodeURIComponent(condition)}`}
+                href={`/associar?condicao=${encodeURIComponent(condition)}`}
                 className="px-5 py-2.5 rounded-full bg-gray-100 text-gray-700 hover:bg-[#3FA174] hover:text-white transition-all duration-200 text-sm font-medium"
               >
                 {condition}
@@ -412,7 +412,7 @@ export default function Home() {
               size="lg"
               className="bg-[#3FA174] hover:bg-[#359966] text-white px-8 py-6 text-lg font-medium rounded-xl"
             >
-              <Link href="/cadastro">
+              <Link href="/associar">
                 Começar agora
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
