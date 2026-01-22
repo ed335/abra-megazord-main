@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminInfo } from '@/lib/admin-auth';
+import { criarLembreteDocumentoRejeitado } from '@/lib/lembretes';
 
 export async function POST(
   request: NextRequest,
@@ -56,6 +57,12 @@ export async function POST(
         statusOnboarding: 'DOCS_PENDENTES',
       },
     });
+
+    await criarLembreteDocumentoRejeitado(
+      documento.pacienteId,
+      params.id,
+      motivoRejeicao.trim()
+    );
 
     return NextResponse.json({ success: true, message: 'Documento rejeitado' });
   } catch (error) {
