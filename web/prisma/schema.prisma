@@ -104,6 +104,43 @@ enum StatusRecompensa {
   EXPIRADA
 }
 
+// ============= Enums do Novo Onboarding =============
+
+enum PerfilOnboarding {
+  INICIANTE     // Não tem prescrição - quer começar tratamento
+  PRESCRICAO    // Já tem receita/prescrição médica
+  ANVISA        // Tem prescrição + autorização ANVISA
+}
+
+enum StatusOnboarding {
+  LEAD              // Criou conta básica
+  DOCS_PENDENTES    // Aguardando envio de documentos
+  EM_VALIDACAO      // Documentos enviados, aguardando análise
+  ASSOCIADO_ATIVO   // Aprovado e ativo
+  ASSOCIADO_INATIVO // Inadimplente ou expirado
+  BLOQUEADO         // Fraude ou documento inválido grave
+}
+
+enum TipoDocumento {
+  IDENTIDADE_FRENTE
+  IDENTIDADE_VERSO
+  SELFIE
+  COMPROVANTE_ENDERECO
+  PRESCRICAO
+  LAUDO_MEDICO
+  AUTORIZACAO_ANVISA
+  OUTRO
+}
+
+enum StatusDocumento {
+  PENDENTE        // Aguardando envio
+  ENVIADO         // Enviado, aguardando análise
+  EM_VALIDACAO    // Em processo de validação
+  APROVADO        // Documento válido
+  REJEITADO       // Documento inválido (com motivo)
+  EXPIRADO        // Documento vencido
+}
+
 // ============= Models =============
 
 model Usuario {
@@ -210,6 +247,26 @@ model Paciente {
   historicoIndicacoes HistoricoIndicacao[] @relation("IndicadorHistorico")
   recompensas       RecompensaIndicacao[]
   
+  // ============= Novo Sistema de Onboarding =============
+  perfilOnboarding    PerfilOnboarding?   // INICIANTE, PRESCRICAO, ANVISA
+  statusOnboarding    StatusOnboarding    @default(LEAD)
+  etapaOnboarding     Int                 @default(0) // 0-4 (etapa atual do wizard)
+  onboardingCompleto  Boolean             @default(false)
+  
+  // Triagem rápida
+  objetivoPrincipalOnb String?           // Objetivo selecionado na triagem
+  sintomasOnb         String[]           @default([]) // Sintomas selecionados
+  
+  // Carteirinha
+  numeroAssociado     String?            @unique // Formato: ABR-XXXXXXXX
+  dataAtivacao        DateTime?          // Quando foi aprovado/ativado
+  dataInativacao      DateTime?          // Quando foi inativado (se aplicável)
+  motivoBloqueio      String?            // Motivo se status = BLOQUEADO
+  
+  // Relacionamentos do novo onboarding
+  documentos          Documento[]
+  carteirinha         Carteirinha?
+  
   criadoEm        DateTime  @default(now())
   atualizadoEm    DateTime  @updatedAt
   
@@ -218,6 +275,9 @@ model Paciente {
   @@index([whatsapp])
   @@index([codigoIndicacao])
   @@index([indicadoPorId])
+  @@index([statusOnboarding])
+  @@index([perfilOnboarding])
+  @@index([numeroAssociado])
 }
 
 model PreAnamnese {
@@ -340,6 +400,7 @@ model Admin {
   mensagensWhatsApp MensagemWhatsApp[]
   lotesWhatsApp     LoteMensagemWhatsApp[]
   templates         TemplateMensagem[]
+  documentosRevisados Documento[] @relation("DocumentoRevisao")
 }
 
 enum StatusCadastro {
@@ -896,6 +957,141 @@ model LoteMensagemWhatsApp {
   @@index([adminId])
   @@index([status])
   @@index([criadoEm])
+}
+
+// ============= Novo Sistema de Onboarding - Modelos =============
+
+// Documento com versionamento
+model Documento {
+  id              String          @id @default(cuid())
+  
+  pacienteId      String
+  paciente        Paciente        @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  tipo            TipoDocumento
+  status          StatusDocumento @default(PENDENTE)
+  url             String?         // URL do arquivo
+  nomeArquivo     String?
+  tamanho         Int?            // Tamanho em bytes
+  mimeType        String?
+  
+  // Validade (para prescrição e ANVISA)
+  dataEmissao     DateTime?
+  dataValidade    DateTime?
+  
+  // Metadados de revisão
+  revisadoPorId   String?
+  revisadoPor     Admin?          @relation("DocumentoRevisao", fields: [revisadoPorId], references: [id])
+  revisadoEm      DateTime?
+  motivoRejeicao  String?
+  notasRevisao    String?
+  
+  // Versionamento
+  versao          Int             @default(1)
+  versoes         DocumentoVersao[]
+  
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @updatedAt
+  
+  @@index([pacienteId])
+  @@index([tipo])
+  @@index([status])
+  @@index([dataValidade])
+}
+
+// Histórico de versões do documento
+model DocumentoVersao {
+  id              String          @id @default(cuid())
+  
+  documentoId     String
+  documento       Documento       @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  
+  versao          Int
+  url             String
+  nomeArquivo     String?
+  tamanho         Int?
+  
+  status          StatusDocumento
+  motivoRejeicao  String?
+  
+  criadoEm        DateTime        @default(now())
+  
+  @@index([documentoId])
+  @@index([versao])
+}
+
+// Carteirinha digital do associado
+model Carteirinha {
+  id              String          @id @default(cuid())
+  
+  pacienteId      String          @unique
+  paciente        Paciente        @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  numero          String          @unique // Número da carteirinha (mesmo que numeroAssociado)
+  qrToken         String          @unique // Token único para verificação via QR
+  
+  // Dados exibidos na carteirinha
+  nomeExibido     String          // Nome para exibir na carteirinha
+  perfilTipo      PerfilOnboarding?
+  
+  // Validade
+  dataEmissao     DateTime        @default(now())
+  dataValidade    DateTime        // Data de expiração
+  
+  ativo           Boolean         @default(true)
+  
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @updatedAt
+  
+  @@index([pacienteId])
+  @@index([qrToken])
+  @@index([numero])
+}
+
+// Log de auditoria de documentos
+model AuditoriaDocumento {
+  id              String          @id @default(cuid())
+  
+  documentoId     String?
+  pacienteId      String
+  adminId         String?
+  
+  acao            String          // UPLOAD, APROVADO, REJEITADO, REENVIO, EXPIRADO
+  detalhes        Json?           // Detalhes da ação
+  
+  ip              String?
+  userAgent       String?
+  
+  criadoEm        DateTime        @default(now())
+  
+  @@index([documentoId])
+  @@index([pacienteId])
+  @@index([adminId])
+  @@index([acao])
+  @@index([criadoEm])
+}
+
+// Lembretes automáticos
+model Lembrete {
+  id              String          @id @default(cuid())
+  
+  pacienteId      String
+  tipo            String          // PRESCRICAO_VENCENDO, ANVISA_VENCENDO, CONTRIBUICAO_VENCENDO
+  referencia      String?         // ID do documento/assinatura relacionado
+  
+  dataLembrete    DateTime        // Quando o lembrete deve ser enviado
+  mensagem        String
+  
+  enviado         Boolean         @default(false)
+  enviadoEm       DateTime?
+  canalEnvio      String?         // EMAIL, WHATSAPP
+  
+  criadoEm        DateTime        @default(now())
+  
+  @@index([pacienteId])
+  @@index([tipo])
+  @@index([dataLembrete])
+  @@index([enviado])
 }
 
 // ============= Índices & Constraints =============

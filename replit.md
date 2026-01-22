@@ -1,6 +1,28 @@
 # ABRACANM - Associação Brasileira de Cannabis Medicinal
 
-## Recent Changes (2026-01-21)
+## Recent Changes (2026-01-22)
+- **Comprehensive Onboarding System (Phases 1-7):**
+  - Extended Prisma schema with PerfilOnboarding, StatusOnboarding, TipoDocumento, StatusDocumento enums
+  - New models: Documento (with versioning), DocumentoVersao, Carteirinha, AuditoriaDocumento, Lembrete
+  - 3 user profiles: INICIANTE (ID only), PRESCRICAO (ID + prescription), ANVISA (ID + prescription + ANVISA auth)
+  - State machine: LEAD → DOCS_PENDENTES → EM_VALIDACAO → ASSOCIADO_ATIVO
+- **New Pages:**
+  - `/associar` - 4-step wizard with profile selection, data, documents, confirmation
+  - `/minha-pasta` - Document vault with upload, versioning, status tracking
+  - `/minha-jornada` - User journey dashboard with next-step engine
+  - `/verificar/[token]` - Public QR code verification for digital membership card
+  - `/admin/documentos` - Admin panel for document review with approve/reject flow
+- **APIs Created:**
+  - `/api/onboarding` (GET/PUT), `/api/onboarding/documentos` (GET/POST)
+  - `/api/carteirinha` (GET/POST), `/api/carteirinha/verificar/[token]` (GET)
+  - `/api/admin/documentos`, `/api/admin/documentos/[id]/aprovar`, `/api/admin/documentos/[id]/rejeitar`
+- **Security Improvements:**
+  - Removed JWT_SECRET fallback (now throws error if not configured)
+  - Document approval sets revisadoPorId/revisadoEm for audit trail
+  - Profile-based document requirement validation before activating users
+- **Helper Library:** `web/lib/onboarding.ts` with calcularProximoPasso(), gerarNumeroAssociado(), gerarQRToken()
+
+## Previous Changes (2026-01-21)
 - **Role-Based Access Control (RBAC) System:**
   - 6 admin roles: SUPER_ADMIN, ADMINISTRADOR, GERENTE, ATENDENTE, FINANCEIRO, MARKETING
   - 18 granular permissions across categories (Associados, Médicos, Agendamentos, Financeiro, Comunicações, Equipe, Sistema)
